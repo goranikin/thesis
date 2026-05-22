@@ -11,66 +11,53 @@ uv run python -m src.evaluate \
 
 import argparse
 import time
-from typing import Any
 
 import torch
-from difusco.train import evaluate
 from torch.utils.data import DataLoader
 
 from difusco.dataset import TSPDataset, collate_tsp
+from difusco.main.trainer import Trainer
 from difusco.models.model import DifuscoTSP
+from difusco.types import RunConfig
+from utils import select_device
 
 
-def _select_device() -> torch.device:
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-        return torch.device("mps")
-    return torch.device("cpu")
+def _load_run_config(ckpt: dict) -> RunConfig:
+    return RunConfig.model_validate(ckpt.get("config") or {})
 
 
-def _build_model_from_ckpt(
-    ckpt: dict[str, Any], overrides: dict[str, Any]
-) -> DifuscoTSP:
+def _build_model_from_ckpt(ckpt: dict, overrides: dict) -> DifuscoTSP:
     """
     Reconstruct DifuscoTSP using the config saved inside the checkpoint, with
     optional manual overrides. Falls back to paper defaults if no config was
     saved (older checkpoints).
     """
-    cfg = ckpt.get("config") or {}
-    model_cfg = cfg.get("model", {})
-    diff_cfg = cfg.get("diffusion", {})
-    train_cfg = cfg.get("training", {})
-
-    kwargs = {
-        "hidden_dim": model_cfg.get("hidden_dim", 256),
-        "num_layers": model_cfg.get("num_layers", 12),
-        "T": diff_cfg.get("T", 1000),
-        "beta_start": diff_cfg.get("beta_start", 1e-4),
-        "beta_end": diff_cfg.get("beta_end", 0.02),
-        "diffusion_type": diff_cfg.get("diffusion_type", "categorical"),
-        "dropout": train_cfg.get("dropout", 0.0),
-    }
+    kwargs = _load_run_config(ckpt).model_dump(exclude_none=True)
     kwargs.update({k: v for k, v in overrides.items() if v is not None})
 
     print("Model config:")
     for k, v in kwargs.items():
         print(f"  {k}: {v}")
-    return DifuscoTSP(**kwargs)
+    return DifuscoTSP(
+        hidden_dim=kwargs["hidden_dim"],
+        num_layers=kwargs["num_layers"],
+        T=kwargs["T"],
+        beta_start=kwargs["beta_start"],
+        beta_end=kwargs["beta_end"],
+        dropout=kwargs["dropout"],
+    )
 
 
-def _infer_num_nodes(ckpt: dict[str, Any], cli_value: int | None) -> int:
+def _infer_num_nodes(ckpt: dict, cli_value: int | None) -> int:
     if cli_value is not None:
         return cli_value
-    cfg = ckpt.get("config") or {}
-    return cfg.get("data", {}).get("num_nodes", 50)
+    return _load_run_config(ckpt).data.num_nodes or 50
 
 
-def _infer_sparse_factor(ckpt: dict[str, Any], cli_value: int | None) -> int:
+def _infer_sparse_factor(ckpt: dict, cli_value: int | None) -> int:
     if cli_value is not None:
         return cli_value
-    cfg = ckpt.get("config") or {}
-    return cfg.get("data", {}).get("sparse_factor", -1)
+    return _load_run_config(ckpt).data.sparse_factor or -1
 
 
 def main():
@@ -142,7 +129,7 @@ def main():
 
     torch.manual_seed(args.seed)
 
-    device = _select_device()
+    device = select_device()
     print(f"Device: {device}")
 
     print(f"Loading checkpoint: {args.checkpoint}")
@@ -185,11 +172,10 @@ def main():
         f"schedule={args.schedule}, 2-opt={args.use_2opt}"
     )
 
+    trainer = Trainer(model, device=device)
     t0 = time.time()
-    pred_len, gt_len, gap = evaluate(
-        model,
+    pred_len, gt_len, gap = trainer.validate(
         loader,
-        device,
         num_inference_steps=args.inference_steps,
         schedule_type=args.schedule,
         use_2opt=args.use_2opt,

@@ -1,0 +1,47 @@
+defaults:
+  - data: tsp50
+  - model: small # ← match your h128_L6 checkpoint
+  - diffusion: categorical
+  - training: default
+  - wandb: default
+  - _self_
+
+data_path: src/tsp50_10000_concorde.txt
+seed: 42
+
+cado:
+  algorithm: ppo
+  pretrained_ckpt: checkpoints/best_model.pt
+
+  # --- Hybrid-FT ---
+  lora_rank: 2
+  selective_layers: 1
+
+  # --- Reward ---
+  reward_mode: LCR # paper's strongest setting (Table 5)
+  use_2opt_in_reward: false # off during RL; on at final eval only
+
+  # --- Optimization ---
+  lr: 3.0e-4
+  weight_decay: 0.0
+  grad_clip: 1.0
+
+  # --- Rollout / schedule ---
+  M_train: 5
+  M_eval: 20
+  schedule_type: cosine
+
+  # --- Outer training loop ---
+  # I'm cutting epochs by ~10x relative to the paper. Reasons below.
+  epochs: 100
+  samples_per_epoch: 128
+  batch_size: 8
+
+  # --- PPO-specific ---
+  ppo_inner_epochs: 4
+  ppo_clip_epsilon: 1.0e-4
+
+  # --- Logging / eval ---
+  log_interval: 10
+  eval_every: 25
+  eval_subset: 200
