@@ -4,6 +4,7 @@ uv run python -m data_generation.generate_cvrp_data min_nodes=20 max_nodes=50 nu
 """
 
 import logging
+
 import hydra
 import numpy as np
 from omegaconf import DictConfig
