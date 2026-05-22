@@ -1,7 +1,3 @@
-"""Shared batch file-generation loop for dataset scripts."""
-
-from __future__ import annotations
-
 import logging
 import os
 import time
