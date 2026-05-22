@@ -14,7 +14,14 @@ from data_generation.types.config import (
     VrpSolverConfig,
     XInstanceGeneratorConfig,
 )
-from data_generation.types.constants import COORD_SCALE, OUTPUT_MARKER, ROUTE_SEPARATOR
+from data_generation.types.constants import (
+    COORD_SCALE,
+    DEFAULT_CVRP_GENERATION,
+    DEFAULT_MDVRP_GENERATION,
+    DEFAULT_TSP_GENERATION,
+    OUTPUT_MARKER,
+    ROUTE_SEPARATOR,
+)
 from data_generation.types.dataset import (
     Coordinate,
     CvrpInstance,
@@ -32,6 +39,9 @@ __all__ = [
     "COORD_SCALE",
     "OUTPUT_MARKER",
     "ROUTE_SEPARATOR",
+    "DEFAULT_TSP_GENERATION",
+    "DEFAULT_CVRP_GENERATION",
+    "DEFAULT_MDVRP_GENERATION",
     "DepotPositioning",
     "CustomerPositioning",
     "DemandDistribution",

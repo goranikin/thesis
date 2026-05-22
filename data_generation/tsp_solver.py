@@ -8,7 +8,7 @@ from concorde.tsp import TSPSolver
 
 from data_generation.types import TspSolverConfig
 
-_solver_config = TspSolverConfig()
+_solver_config: TspSolverConfig | None = None
 
 
 def _init_worker(config: dict) -> None:
@@ -21,6 +21,9 @@ def _init_worker(config: dict) -> None:
 
 
 def solve_tsp(nodes_coord: np.ndarray) -> list[int]:
+    if _solver_config is None:
+        raise RuntimeError("TSP solver config not initialized in worker process")
+
     num_nodes = nodes_coord.shape[0]
 
     if _solver_config.solver == "concorde":
@@ -41,9 +44,7 @@ def solve_tsp(nodes_coord: np.ndarray) -> list[int]:
             type="TSP",
             dimension=num_nodes,
             edge_weight_type="EUC_2D",
-            node_coords={
-                n + 1: nodes_coord[n] * scale for n in range(num_nodes)
-            },
+            node_coords={n + 1: nodes_coord[n] * scale for n in range(num_nodes)},
         )
         solution = lkh.solve(
             lkh_path,

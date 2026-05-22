@@ -1,0 +1,15 @@
+# Sync with data_generation/types/constants.py when changing defaults.
+hydra:
+  job:
+    chdir: false
+
+num_samples: 128000
+batch_size: 128
+seed: 1234
+filename: null
+min_nodes: 20
+max_nodes: 50
+solver_runtime: 5.0
+depot_positioning: random
+customer_positioning: random
+demand_distribution: CV

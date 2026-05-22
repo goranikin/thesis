@@ -1,11 +1,15 @@
-from __future__ import annotations
-
-from typing import Annotated, Literal
+from typing import Any, Literal, cast
 
 import numpy as np
+from omegaconf import DictConfig, OmegaConf
 from pydantic import Field, model_validator
 
 from data_generation.types.base import Schema
+from data_generation.types.constants import (
+    DEFAULT_CVRP_GENERATION,
+    DEFAULT_MDVRP_GENERATION,
+    DEFAULT_TSP_GENERATION,
+)
 
 DepotPositioning = Literal["center", "eccentric", "random", "quadrant"]
 CustomerPositioning = Literal["random", "clustered", "random-clustered"]
@@ -13,14 +17,24 @@ DemandDistribution = Literal["U", "CV", "Q", "SL"]
 TspSolverName = Literal["concorde", "lkh"]
 
 
+def _merge_hydra_config(cfg: DictConfig, defaults: dict[str, Any]) -> dict[str, Any]:
+    OmegaConf.set_struct(cfg, False)
+    merged = OmegaConf.merge(OmegaConf.create(defaults), cfg)
+    raw = OmegaConf.to_container(merged, resolve=True)
+    if not isinstance(raw, dict):
+        msg = f"Expected dict from Hydra config, got {type(raw)}"
+        raise TypeError(msg)
+    return cast(dict[str, Any], raw)
+
+
 class BatchGenerationConfig(Schema):
-    num_samples: Annotated[int, Field(ge=1)] = 128_000
-    batch_size: Annotated[int, Field(ge=1)] = 128
-    seed: int = 1234
-    filename: str | None = None
+    num_samples: int = Field(ge=1)
+    batch_size: int = Field(ge=1)
+    seed: int
+    filename: str | None
 
     @model_validator(mode="after")
-    def batch_size_divides_num_samples(self) -> BatchGenerationConfig:
+    def batch_size_divides_num_samples(self) -> "BatchGenerationConfig":
         if self.num_samples % self.batch_size != 0:
             msg = "num_samples must be divisible by batch_size"
             raise ValueError(msg)
@@ -32,11 +46,11 @@ class BatchGenerationConfig(Schema):
 
 
 class NodeRangeConfig(Schema):
-    min_nodes: Annotated[int, Field(ge=1)] = 50
-    max_nodes: Annotated[int, Field(ge=1)] = 50
+    min_nodes: int = Field(ge=1)
+    max_nodes: int = Field(ge=1)
 
     @model_validator(mode="after")
-    def min_nodes_le_max_nodes(self) -> NodeRangeConfig:
+    def min_nodes_le_max_nodes(self) -> "NodeRangeConfig":
         if self.min_nodes > self.max_nodes:
             raise ValueError("min_nodes must be <= max_nodes")
         return self
@@ -46,24 +60,21 @@ class NodeRangeConfig(Schema):
 
 
 class XInstanceGeneratorConfig(Schema):
-    depot_positioning: DepotPositioning = "random"
-    customer_positioning: CustomerPositioning = "random"
-    demand_distribution: DemandDistribution = "CV"
-
-    def to_generator_kwargs(self) -> dict[str, str]:
-        return {
-            "depot_positioning": self.depot_positioning,
-            "customer_positioning": self.customer_positioning,
-            "demand_distribution": self.demand_distribution,
-        }
+    depot_positioning: DepotPositioning
+    customer_positioning: CustomerPositioning
+    demand_distribution: DemandDistribution
 
 
 class TspSolverConfig(Schema):
-    solver: TspSolverName = "concorde"
-    lkh_trials: Annotated[int, Field(ge=1)] = 1000
+    solver: TspSolverName
+    lkh_trials: int = Field(ge=1)
 
 
 class TspGenerationConfig(BatchGenerationConfig, NodeRangeConfig, TspSolverConfig):
+    @classmethod
+    def from_hydra(cls, cfg: DictConfig) -> "TspGenerationConfig":
+        return cls.model_validate(_merge_hydra_config(cfg, DEFAULT_TSP_GENERATION))
+
     @property
     def output_path(self) -> str:
         if self.filename is not None:
@@ -72,7 +83,7 @@ class TspGenerationConfig(BatchGenerationConfig, NodeRangeConfig, TspSolverConfi
 
 
 class VrpSolverConfig(Schema):
-    solver_runtime: Annotated[float, Field(gt=0)] = 5.0
+    solver_runtime: float = Field(gt=0)
 
 
 class CvrpGenerationConfig(
@@ -81,7 +92,9 @@ class CvrpGenerationConfig(
     XInstanceGeneratorConfig,
     VrpSolverConfig,
 ):
-    batch_size: Annotated[int, Field(ge=1)] = 128
+    @classmethod
+    def from_hydra(cls, cfg: DictConfig) -> "CvrpGenerationConfig":
+        return cls.model_validate(_merge_hydra_config(cfg, DEFAULT_CVRP_GENERATION))
 
     @property
     def output_path(self) -> str:
@@ -91,11 +104,11 @@ class CvrpGenerationConfig(
 
 
 class MdvrpDepotRangeConfig(Schema):
-    min_depots: Annotated[int, Field(ge=2)] = 2
-    max_depots: Annotated[int, Field(ge=2)] = 10
+    min_depots: int = Field(ge=2)
+    max_depots: int = Field(ge=2)
 
     @model_validator(mode="after")
-    def min_depots_le_max_depots(self) -> MdvrpDepotRangeConfig:
+    def min_depots_le_max_depots(self) -> "MdvrpDepotRangeConfig":
         if self.min_depots > self.max_depots:
             raise ValueError("min_depots must be <= max_depots")
         return self
@@ -106,12 +119,15 @@ class MdvrpGenerationConfig(
     MdvrpDepotRangeConfig,
     VrpSolverConfig,
 ):
-    min_customers_per_depot: Annotated[int, Field(ge=1)] = 10
-    max_customers_per_depot: Annotated[int, Field(ge=1)] = 20
-    batch_size: Annotated[int, Field(ge=1)] = 64
+    min_customers_per_depot: int = Field(ge=1)
+    max_customers_per_depot: int = Field(ge=1)
+
+    @classmethod
+    def from_hydra(cls, cfg: DictConfig) -> "MdvrpGenerationConfig":
+        return cls.model_validate(_merge_hydra_config(cfg, DEFAULT_MDVRP_GENERATION))
 
     @model_validator(mode="after")
-    def customer_range_valid(self) -> MdvrpGenerationConfig:
+    def customer_range_valid(self) -> "MdvrpGenerationConfig":
         if self.min_customers_per_depot > self.max_customers_per_depot:
             raise ValueError(
                 "min_customers_per_depot must be <= max_customers_per_depot"

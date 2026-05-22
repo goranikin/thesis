@@ -16,7 +16,7 @@ from data_generation.types import (
     VrpSolverConfig,
 )
 
-_solver_config = VrpSolverConfig()
+_solver_config: VrpSolverConfig | None = None
 
 
 def _init_worker(config: dict) -> None:
@@ -57,6 +57,9 @@ def _to_one_indexed_routes(model: Model, result) -> VrpRoutes:
 
 def solve_cvrp(instance: CvrpInstance) -> VrpRoutes | None:
     """Solve a single-depot CVRP instance."""
+    if _solver_config is None:
+        raise RuntimeError("VRP solver config not initialized in worker process")
+
     model = Model()
     depot = model.add_depot(
         x=float(instance.nodes[0].x),
@@ -91,10 +94,12 @@ def solve_cvrp(instance: CvrpInstance) -> VrpRoutes | None:
 
 def solve_mdvrp(instance: MdvrpInstance) -> VrpRoutes | None:
     """Solve a multi-depot VRP instance."""
+    if _solver_config is None:
+        raise RuntimeError("VRP solver config not initialized in worker process")
+
     model = Model()
     depots = [
-        model.add_depot(x=float(depot.x), y=float(depot.y))
-        for depot in instance.depots
+        model.add_depot(x=float(depot.x), y=float(depot.y)) for depot in instance.depots
     ]
 
     for idx in range(instance.n_customers):

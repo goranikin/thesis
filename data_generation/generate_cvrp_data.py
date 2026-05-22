@@ -1,11 +1,17 @@
+"""
+uv run python -m data_generation.generate_cvrp_data
+uv run python -m data_generation.generate_cvrp_data min_nodes=20 max_nodes=50 num_samples=1280 batch_size=16
+"""
+
 import logging
-
+import hydra
 import numpy as np
+from omegaconf import DictConfig
 
-from data_generation.cli import parse_config
 from data_generation.generators.x_instance.x_intance_generator import (
     generate_x_instance,
 )
+from data_generation.hydra_config import CONFIG_DIR
 from data_generation.runner import log_generation_summary, run_batch_generation
 from data_generation.types import (
     COORD_SCALE,
@@ -15,10 +21,6 @@ from data_generation.types import (
 from data_generation.vrp_common import _init_worker, build_cvrp_sample
 
 logger = logging.getLogger(__name__)
-
-# uv run python -m data_generation.generate_cvrp_data \
-#   --min-nodes 20 --max-nodes 50 --num-samples 1280 --batch-size 16 \
-#   --filename cvrp20-50_pyvrp.txt --seed 42
 
 
 def _build_cvrp_batch(
@@ -44,10 +46,15 @@ def _process_instance(
     return sample.to_line()
 
 
-def main() -> None:
+@hydra.main(
+    version_base=None,
+    config_path=str(CONFIG_DIR),
+    config_name="cvrp",
+)
+def main(hydra_cfg: DictConfig) -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    config = parse_config(CvrpGenerationConfig)
+    config = CvrpGenerationConfig.from_hydra(hydra_cfg)
     np.random.seed(config.seed)
     logger.info("Run options: %s", config.model_dump())
 
