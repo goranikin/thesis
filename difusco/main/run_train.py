@@ -35,7 +35,7 @@ def main(hydra_cfg: DictConfig) -> None:
     cfg: RunConfig = RunConfig.from_hydra(hydra_cfg)
 
     device: torch.device = select_device()
-    logger.info("Device: %s", device)
+    logger.info(f"Device: {device}")
 
     dataset: TSPDataset = TSPDataset(
         file_path=cfg.data_path,
@@ -75,21 +75,14 @@ def main(hydra_cfg: DictConfig) -> None:
     num_params = sum(p.numel() for p in model.parameters())
     logger.info("Model: DIFUSCO")
     logger.info(
-        "  Layers: %s, Hidden: %s",
-        cfg.model.num_layers,
-        cfg.model.hidden_dim,
+        f"  Layers: {cfg.model.num_layers}, Hidden: {cfg.model.hidden_dim}"
     )
-    logger.info("  Parameters: %s", f"{num_params:,}")
+    logger.info(f"  Parameters: {num_params:,}")
     logger.info(
-        "  T=%s, β=[%s, %s]",
-        cfg.diffusion.T,
-        cfg.diffusion.beta_start,
-        cfg.diffusion.beta_end,
+        f"  T={cfg.diffusion.T}, β=[{cfg.diffusion.beta_start}, {cfg.diffusion.beta_end}]"
     )
     logger.info(
-        "  Inference: %s steps, %s schedule",
-        cfg.inference.inference_steps,
-        cfg.inference.schedule,
+        f"  Inference: {cfg.inference.inference_steps} steps, {cfg.inference.schedule} schedule"
     )
 
     wandb.init(
@@ -117,13 +110,13 @@ def main(hydra_cfg: DictConfig) -> None:
         log_interval=cfg.training.log_interval,
     )
 
-    logger.info("\n%s", "=" * 60)
-    logger.info("  Training for %s epochs", cfg.training.epochs)
-    logger.info("%s", "=" * 60)
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"  Training for {cfg.training.epochs} epochs")
+    logger.info("=" * 60)
 
     ckpt_dir = Path(os.getcwd()) / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
-    logger.info("  Checkpoints: %s", ckpt_dir)
+    logger.info(f"  Checkpoints: {ckpt_dir}")
 
     result: FitResult = trainer.fit(
         config=cfg,
@@ -133,10 +126,10 @@ def main(hydra_cfg: DictConfig) -> None:
         last_checkpoint_path=ckpt_dir / "last_model.pt",
     )
 
-    logger.info("\n%s", "=" * 60)
-    logger.info("  Best Gap: %.2f%%", result.best_gap)
-    logger.info("  Checkpoints saved to: %s", ckpt_dir)
-    logger.info("%s", "=" * 60)
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"  Best Gap: {result.best_gap:.2f}%")
+    logger.info(f"  Checkpoints saved to: {ckpt_dir}")
+    logger.info("=" * 60)
 
     wandb.log({"val/final_best_gap_pct": result.best_gap})
     wandb.finish()

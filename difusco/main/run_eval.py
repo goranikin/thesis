@@ -1,15 +1,16 @@
 """
-uv run python -m src.evaluate \
+uv run python -m difusco.main.run_eval \
     --checkpoint best_model.pt \
     --data data/tsp-50-1280-concorde.txt
 
-uv run python -m src.evaluate \
+uv run python -m difusco.main.run_eval \
     --checkpoint best_model.pt \
     --data data/tsp-50-1280-concorde.txt \
     --inference-steps 50 --schedule cosine --no-2opt --max-instances 128
 """
 
 import argparse
+import logging
 import time
 
 import torch
@@ -20,6 +21,9 @@ from difusco.main.trainer import Trainer
 from difusco.models.model import DifuscoTSP
 from difusco.types import RunConfig
 from utils import select_device
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 
 def _load_run_config(ckpt: dict) -> RunConfig:
@@ -35,9 +39,9 @@ def _build_model_from_ckpt(ckpt: dict, overrides: dict) -> DifuscoTSP:
     kwargs = _load_run_config(ckpt).model_dump(exclude_none=True)
     kwargs.update({k: v for k, v in overrides.items() if v is not None})
 
-    print("Model config:")
+    logger.info("Model config:")
     for k, v in kwargs.items():
-        print(f"  {k}: {v}")
+        logger.info(f"  {k}: {v}")
     return DifuscoTSP(
         hidden_dim=kwargs["hidden_dim"],
         num_layers=kwargs["num_layers"],
@@ -60,7 +64,7 @@ def _infer_sparse_factor(ckpt: dict, cli_value: int | None) -> int:
     return _load_run_config(ckpt).data.sparse_factor or -1
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Evaluate a trained DIFUSCO TSP model on a test set."
     )
@@ -130,14 +134,14 @@ def main():
     torch.manual_seed(args.seed)
 
     device = select_device()
-    print(f"Device: {device}")
+    logger.info(f"Device: {device}")
 
-    print(f"Loading checkpoint: {args.checkpoint}")
+    logger.info(f"Loading checkpoint: {args.checkpoint}")
     ckpt = torch.load(args.checkpoint, map_location=device, weights_only=False)
 
     num_nodes = _infer_num_nodes(ckpt, args.num_nodes)
     sparse_factor = _infer_sparse_factor(ckpt, args.sparse_factor)
-    print(
+    logger.info(
         f"Test set: {args.data}  (num_nodes={num_nodes}, sparse_factor={sparse_factor})"
     )
 
@@ -154,20 +158,20 @@ def main():
     state_dict = ckpt["model_state_dict"] if "model_state_dict" in ckpt else ckpt
     missing, unexpected = model.load_state_dict(state_dict, strict=False)
     if missing:
-        print(f"  [warn] missing keys: {missing}")
+        logger.warning(f"  missing keys: {missing}")
     if unexpected:
-        print(f"  [warn] unexpected keys: {unexpected}")
+        logger.warning(f"  unexpected keys: {unexpected}")
     model = model.to(device)
     model.eval()
 
     num_params = sum(p.numel() for p in model.parameters())
-    print(f"  Parameters: {num_params:,}")
+    logger.info(f"  Parameters: {num_params:,}")
     if "epoch" in ckpt:
-        print(f"  Trained epoch: {ckpt['epoch']}")
+        logger.info(f"  Trained epoch: {ckpt['epoch']}")
     if "best_gap" in ckpt:
-        print(f"  Reported best gap (val): {ckpt['best_gap']:.4f}%")
+        logger.info(f"  Reported best gap (val): {ckpt['best_gap']:.4f}%")
 
-    print(
+    logger.info(
         f"\nInference: steps={args.inference_steps}, "
         f"schedule={args.schedule}, 2-opt={args.use_2opt}"
     )
@@ -189,17 +193,17 @@ def main():
         else len(dataset)
     )
 
-    print("\n" + "=" * 60)
-    print("  Test Results")
-    print("=" * 60)
-    print(f"  Instances evaluated : {n_eval}")
-    print(f"  Predicted tour len  : {pred_len:.4f}")
-    print(f"  Ground-truth len    : {gt_len:.4f}")
-    print(f"  Optimality gap      : {gap:.4f}%")
-    print(
+    logger.info(f"\n{'=' * 60}")
+    logger.info("  Test Results")
+    logger.info("=" * 60)
+    logger.info(f"  Instances evaluated : {n_eval}")
+    logger.info(f"  Predicted tour len  : {pred_len:.4f}")
+    logger.info(f"  Ground-truth len    : {gt_len:.4f}")
+    logger.info(f"  Optimality gap      : {gap:.4f}%")
+    logger.info(
         f"  Wall time           : {elapsed:.1f}s ({elapsed / max(n_eval, 1):.3f}s/instance)"
     )
-    print("=" * 60)
+    logger.info("=" * 60)
 
 
 if __name__ == "__main__":

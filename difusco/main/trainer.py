@@ -1,4 +1,3 @@
-from difusco.types.config import InferenceConfig, TrainingConfig
 import logging
 import time
 from pathlib import Path
@@ -13,6 +12,7 @@ from tqdm import tqdm
 from difusco.decoding import compute_tour_length, greedy_decode_tsp, two_opt
 from difusco.models.model import DifuscoTSP
 from difusco.types import EpochRecord, FitResult, RunConfig
+from difusco.types.config import InferenceConfig, TrainingConfig
 from utils import select_device
 
 logger = logging.getLogger(__name__)
@@ -253,23 +253,13 @@ class Trainer:
 
                 if saved_best:
                     logger.info(
-                        "  Epoch %3d | Loss: %.4f | Tour: %.3f (GT: %.3f, Gap: %.2f%%) | %.1fs  [saved best]",
-                        epoch,
-                        loss,
-                        pred_len,
-                        gt_len,
-                        gap,
-                        elapsed,
+                        f"  Epoch {epoch:3d} | Loss: {loss:.4f} | Tour: {pred_len:.3f} "
+                        f"(GT: {gt_len:.3f}, Gap: {gap:.2f}%) | {elapsed:.1f}s  [saved best]"
                     )
                 else:
                     logger.info(
-                        "  Epoch %3d | Loss: %.4f | Tour: %.3f (GT: %.3f, Gap: %.2f%%) | %.1fs",
-                        epoch,
-                        loss,
-                        pred_len,
-                        gt_len,
-                        gap,
-                        elapsed,
+                        f"  Epoch {epoch:3d} | Loss: {loss:.4f} | Tour: {pred_len:.3f} "
+                        f"(GT: {gt_len:.3f}, Gap: {gap:.2f}%) | {elapsed:.1f}s"
                     )
             else:
                 elapsed = time.time() - t0
@@ -282,10 +272,7 @@ class Trainer:
                     )
                 )
                 logger.info(
-                    "  Epoch %3d | Loss: %.4f | %.1fs",
-                    epoch,
-                    loss,
-                    elapsed,
+                    f"  Epoch {epoch:3d} | Loss: {loss:.4f} | {elapsed:.1f}s"
                 )
 
         if last_checkpoint_path is not None:

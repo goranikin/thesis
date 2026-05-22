@@ -25,7 +25,7 @@ class TSPDataset(Dataset):
         self.sparse_factor = sparse_factor
         self.file_lines = open(file_path).read().splitlines()
         self.file_lines = [line for line in self.file_lines if line.strip()]
-        logger.info("Loaded %s TSP-%s instances", len(self.file_lines), num_nodes)
+        logger.info(f"Loaded {len(self.file_lines)} TSP-{num_nodes} instances")
 
         # Pre-compute edge_index for dense graphs (same topology for every instance)
         if sparse_factor <= 0:
@@ -157,11 +157,8 @@ def test_tsp_dataset():
     for batch in dataloader:
         node_feat, edge_index, edge_dist, edge_label = batch
         logger.debug(
-            "node_feat=%s edge_index=%s edge_dist=%s edge_label=%s",
-            node_feat.shape,
-            edge_index.shape,
-            edge_dist.shape,
-            edge_label.shape,
+            f"node_feat={node_feat.shape} edge_index={edge_index.shape} "
+            f"edge_dist={edge_dist.shape} edge_label={edge_label.shape}"
         )
         break
 
