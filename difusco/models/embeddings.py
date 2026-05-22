@@ -3,10 +3,6 @@ import math
 import torch
 import torch.nn as nn
 
-# ============================================================
-# Sinusoidal Embeddings
-# ============================================================
-
 
 def sinusoidal_embedding(values: torch.Tensor, dim: int) -> torch.Tensor:
     """

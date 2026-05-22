@@ -14,7 +14,6 @@ outputs/
 # Large data & checkpoint files
 *.pt
 data/*.txt
-difusco/data/*.txt
 checkpoints/
 
 # macOS
