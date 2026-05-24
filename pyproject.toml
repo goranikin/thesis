@@ -9,6 +9,7 @@ dependencies = [
     "lkh>=1.1.1",
     "numpy>=2.4.6",
     "omegaconf>=2.3.0",
+    "pandas>=3.0.3",
     "pyconcorde",
     "pydantic>=2.13.4",
     "pyvrp>=0.13.4",

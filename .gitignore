@@ -15,6 +15,7 @@ outputs/
 *.pt
 data/*.txt
 checkpoints/
+exports/
 
 # macOS
 .DS_Store

@@ -3,12 +3,12 @@ import time
 from pathlib import Path
 
 import torch
-import wandb
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+import wandb
 from difusco.decoding import compute_tour_length, greedy_decode_tsp, two_opt
 from difusco.models.model import DifuscoTSP
 from difusco.types import EpochRecord, FitResult, RunConfig
@@ -271,9 +271,7 @@ class Trainer:
                         time_s=elapsed,
                     )
                 )
-                logger.info(
-                    f"  Epoch {epoch:3d} | Loss: {loss:.4f} | {elapsed:.1f}s"
-                )
+                logger.info(f"  Epoch {epoch:3d} | Loss: {loss:.4f} | {elapsed:.1f}s")
 
         if last_checkpoint_path is not None:
             self.save_checkpoint(

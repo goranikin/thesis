@@ -104,7 +104,7 @@ class DifuscoBackbone(nn.Module):
         self.edge_head = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, 1),
+            nn.Linear(hidden_dim, 2),
         )
 
     def forward(
