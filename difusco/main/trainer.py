@@ -69,13 +69,14 @@ class Trainer:
 
             global_step = (epoch - 1) * len(train_loader) + batch_idx
             if batch_idx % self.log_interval == 0:
+                # Let wandb auto-increment its internal step.
+                # train/global_step is declared as the x-axis for train/* in run_train.py.
                 wandb.log(
                     {
                         "train/loss_step": loss.item(),
                         "train/grad_norm": grad_norm.item(),
                         "train/global_step": global_step,
-                    },
-                    step=global_step,
+                    }
                 )
 
         return total_loss / max(num_batches, 1)
@@ -199,8 +200,7 @@ class Trainer:
                     "train/loss_epoch": loss,
                     "train/lr": lr,
                     "epoch": epoch,
-                },
-                step=epoch,
+                }
             )
 
             run_validation = (
@@ -235,8 +235,7 @@ class Trainer:
                         "val/gap_pct": gap,
                         "val/best_gap_pct": best_gap,
                         "epoch": epoch,
-                    },
-                    step=epoch,
+                    }
                 )
                 history.append(
                     EpochRecord(

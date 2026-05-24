@@ -1,4 +1,4 @@
-inference_steps: 50
-schedule: cosine
-use_2opt: true
-eval_subset: 500
+inference_steps: 50 # M — number of denoising steps actually taken at inference
+schedule: cosine # how to subsample T=1000 training steps into M; "linear" or "cosine"
+use_2opt: true # apply 2-opt refinement after greedy edge decoding
+eval_subset: 500 # cap instances per validation pass; -1 = all

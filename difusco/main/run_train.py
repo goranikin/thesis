@@ -85,6 +85,18 @@ def main(hydra_cfg: DictConfig) -> None:
         mode=cfg.wandb.mode,
         config=cfg.wandb_config(),
     )
+
+    # Declare custom x-axes so each metric plots against the right step counter.
+    # Without this, every wandb.log call shares one monotonically-increasing
+    # internal step, and explicit step= arguments fight each other.
+    wandb.define_metric("train/global_step")
+    wandb.define_metric("epoch")
+    wandb.define_metric("train/loss_step", step_metric="train/global_step")
+    wandb.define_metric("train/grad_norm", step_metric="train/global_step")
+    wandb.define_metric("train/loss_epoch", step_metric="epoch")
+    wandb.define_metric("train/lr", step_metric="epoch")
+    wandb.define_metric("val/*", step_metric="epoch")
+
     wandb.watch(model, log="gradients", log_freq=500)
 
     optimizer = torch.optim.AdamW(
@@ -127,7 +139,14 @@ def main(hydra_cfg: DictConfig) -> None:
     logger.info(f"  Checkpoints saved to: {ckpt_dir}")
     logger.info("=" * 60)
 
-    wandb.log({"val/final_best_gap_pct": result.best_gap})
+    # Log the final summary value with the epoch x-axis so it lands on the val/* chart.
+    wandb.log(
+        {
+            "val/final_best_gap_pct": result.best_gap,
+            "epoch": cfg.training.epochs,
+        }
+    )
+    wandb.summary["val/final_best_gap_pct"] = result.best_gap
     wandb.finish()
 
 

@@ -20,3 +20,6 @@ exports/
 # macOS
 .DS_Store
 
+# IDEs & tooling
+.vscode/
+.ruff_cache/

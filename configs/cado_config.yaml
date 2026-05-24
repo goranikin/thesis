@@ -1,47 +1,131 @@
+# ============================================================================
+# CADO — Cost-Aware Diffusion Optimization
+# RL fine-tuning of the pre-trained DIFUSCO heatmap generator.
+#
+# Hyperparameters are taken from CADO Appendix C.2, Table 9 (TSP-100 row,
+# since the paper has no TSP-50 entry). Where the paper's compute exceeds
+# what an M4 Pro can deliver, we scale down with a comment explaining
+# why and what the paper-faithful value would be.
+# ============================================================================
+
 defaults:
   - data: tsp50
-  - model: small # ← match your h128_L6 checkpoint
+  - model: small          # match the checkpoint architecture exactly
   - diffusion: categorical
-  - training: default
+  - training: default      # reused only for shared utilities (lr scheduler, etc.)
   - wandb: default
   - _self_
 
-data_path: src/tsp50_10000_concorde.txt
+# Dataset used both for sampling RL rollout instances AND for computing
+# the Label-Centered baseline b_D(g) = c_g(f_g(x_label)).
+data_path: ./data/tsp50_128000_concorde.txt
 seed: 42
 
 cado:
-  algorithm: ppo
+  # ============================================================
+  # Initialization — the SL-trained DIFUSCO checkpoint
+  # ============================================================
+  # MUST point at a checkpoint trained with the same model shape
+  # specified above (defaults to "small": hidden_dim=128, num_layers=6).
+  # For a paper-faithful baseline, train with `model=paper` and update.
   pretrained_ckpt: checkpoints/best_model.pt
 
-  # --- Hybrid-FT ---
-  lora_rank: 2
-  selective_layers: 1
+  # ============================================================
+  # Algorithm
+  # ============================================================
+  # The paper uses REINFORCE (Eq. 9) directly on the per-step
+  # log-probability of the denoising policy ˜π_θ(x_{t-1} | x_t, g),
+  # with the terminal reward R_t = -c_g(f_g(x_0)) propagated to every
+  # step in the rollout. PPO is *not* in the paper.
+  algorithm: reinforce        # one of: reinforce, ppo  (paper: reinforce)
 
-  # --- Reward ---
-  reward_mode: LCR # paper's strongest setting (Table 5)
-  use_2opt_in_reward: false # off during RL; on at final eval only
+  # ============================================================
+  # Reward formulation (Sec. 4.2)
+  # ============================================================
+  # LCR (Label-Centered Reward) was the paper's best setting in
+  # every benchmark (Table 5: 0.19% vs 0.22% on TSP-100, etc.).
+  # The baseline b_D(g) is independent of policy actions, so it
+  # remains unbiased while reducing variance.
+  reward_mode: LCR            # one of: LCR, SR  (paper recommends LCR)
 
-  # --- Optimization ---
-  lr: 3.0e-4
+  # 2-opt is part of the *deployment* decoder, not the RL reward.
+  # Including it in the reward signal is what the paper calls
+  # "training the model to be a 2-opt assistant" and degrades the
+  # underlying heatmap quality. Leave off during RL, re-enable at
+  # final evaluation by overriding inference.use_2opt at the CLI.
+  use_2opt_in_reward: false
+
+  # ============================================================
+  # Hybrid Fine-Tuning (Sec. 4.3)
+  # ============================================================
+  # Apply LoRA to the input layer + first (num_layers - selective_layers)
+  # GNN layers; apply Selective-FT (full fine-tuning) to the final
+  # `selective_layers` GNN layers + the edge_head output.
+  #
+  # For the "small" model (num_layers=6, selective_layers=1):
+  #   LoRA on input embeddings + AGNNLayer[0..4]   (5 GNN layers)
+  #   Selective-FT on AGNNLayer[5] + edge_head     (1 GNN layer + head)
+  lora_rank: 2                # paper value (Table 9)
+  selective_layers: 1         # paper value (Table 9)
+
+  # ============================================================
+  # Optimization
+  # ============================================================
+  # The paper's LR is 1e-5. A larger LR (e.g., 3e-4) tends to
+  # destabilize REINFORCE on a well-pretrained diffusion model.
+  # Keep this small unless you observe slow convergence.
+  lr: 1.0e-5                  # paper value (Table 9)
   weight_decay: 0.0
-  grad_clip: 1.0
+  grad_clip: 1.0              # standard; paper does not specify
 
-  # --- Rollout / schedule ---
-  M_train: 5
-  M_eval: 20
-  schedule_type: cosine
+  # ============================================================
+  # Rollout / denoising schedule
+  # ============================================================
+  # During RL training, the denoising trajectory uses M_train steps
+  # (10 in the paper). M_eval is the inference budget at evaluation
+  # time — set it higher for cleaner gap measurements.
+  M_train: 10                 # paper value (Table 9, "Denoising step (Train)")
+  M_eval: 50                  # match SL inference for apples-to-apples eval
+  schedule_type: cosine       # match SL inference schedule
 
-  # --- Outer training loop ---
-  # I'm cutting epochs by ~10x relative to the paper. Reasons below.
-  epochs: 100
-  samples_per_epoch: 128
-  batch_size: 8
+  # Initial noise distribution for the rollout, per Eq. (8):
+  #   ρ_0(s_T) = (g, T, Bern(p = 0.5^N))
+  # i.e., each edge variable is independently Bernoulli(0.5).
+  init_noise: bernoulli_half  # do not change for paper reproduction
 
-  # --- PPO-specific ---
+  # ============================================================
+  # Outer training loop
+  # ============================================================
+  # Paper: TSP-100 uses 3000 epochs × 512 samples / 64 batch = 24k
+  # update steps over ~5 GPU-hours on an A100. We cut to 1000 epochs
+  # to fit M4 Pro wall-clock; expect ~1/3 of the paper's headline
+  # improvement on this budget. Increase as compute allows.
+  epochs: 1000                # paper: 3000 (TSP-100); scaled down 3x
+  samples_per_epoch: 512      # paper value (Table 9) — keep if possible
+  batch_size: 32              # paper: 64; halved for M4 Pro memory
+
+  # ============================================================
+  # PPO-specific (ignored when algorithm: reinforce)
+  # ============================================================
+  # Kept here in case you want to A/B against PPO as a sanity check.
+  # PPO is NOT what the paper does — only use for ablation studies.
   ppo_inner_epochs: 4
-  ppo_clip_epsilon: 1.0e-4
+  ppo_clip_epsilon: 0.2       # standard PPO; 1e-4 (your previous value) is too tight
 
-  # --- Logging / eval ---
-  log_interval: 10
+  # ============================================================
+  # Logging / evaluation
+  # ============================================================
+  # Log every N update steps. With samples_per_epoch=512, batch_size=32,
+  # there are 16 update steps per epoch, so log_interval=4 gives 4 logs/epoch.
+  log_interval: 4
+
+  # Run validation every N epochs. eval_every=25 over 1000 epochs gives
+  # 40 validation points — enough for a smooth learning curve.
   eval_every: 25
-  eval_subset: 200
+  eval_subset: 200            # cap instances per eval pass to keep it quick
+
+  # ============================================================
+  # Checkpointing
+  # ============================================================
+  save_best_only: true        # only persist the lowest-gap checkpoint during RL
+  ckpt_dir: checkpoints/cado  # overridden by code to include a timestamp
