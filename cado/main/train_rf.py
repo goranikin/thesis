@@ -134,7 +134,13 @@ def reinforce_step(
 
     # REINFORCE loss. The negative sign is because we MAXIMIZE reward.
     # `advantage` is detached (it was built from Python floats with no grad).
-    loss = -(advantage.detach() * log_probs_batch).mean()
+    # loss = -(advantage.detach() * log_probs_batch).mean()
+
+    # Add regularization term.
+    # The current training logs show that the model doesn't explore enough.
+    # TODO: After training with this term, I'm going to compare what beta value would be the best (What about a dynamic shrinkage term?)
+    entropy = -log_probs_batch.mean()
+    loss = -(advantage.detach() * log_probs_batch).mean() - 0.01 * entropy
 
     optimizer.zero_grad()
     loss.backward()

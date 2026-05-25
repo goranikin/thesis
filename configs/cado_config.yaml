@@ -37,8 +37,8 @@ cado:
 
   log_interval: 4
 
-  eval_every: 10
-  eval_subset: 100
+  eval_every: 5
+  eval_subset: 200
 
   save_best_only: true
   ckpt_dir: checkpoints/cado
