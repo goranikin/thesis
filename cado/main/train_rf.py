@@ -23,11 +23,13 @@ super-graph:
       the batch, so it is equivalent to a batched update in expectation.
 """
 
+from pathlib import Path
+
 import torch
-from cado.evaluate import evaluate
 from tqdm import tqdm
 
 import wandb
+from cado.evaluate import evaluate
 from cado.models.model import CADOTSP
 
 
@@ -156,7 +158,9 @@ def train_reinforce(
     optimizer: torch.optim.Optimizer,
     device,
     cfg,
-):
+    *,
+    ckpt_path: Path | None = None,
+) -> float:
     """
     Full REINFORCE training loop.
 
@@ -164,6 +168,9 @@ def train_reinforce(
     collate_tsp; we re-collect per-instance tuples here. If you prefer
     batch_size > 1 from the loader, you can instead bypass collate_tsp by
     setting collate_fn to `lambda x: x`.
+
+    Returns:
+        best_gap: the lowest validation gap observed during training.
     """
 
     model.train()
@@ -172,6 +179,7 @@ def train_reinforce(
 
     train_iter = iter(train_loader)
     global_step = 0
+    best_gap = float("inf")
 
     for epoch in range(1, cfg.cado.epochs + 1):
         epoch_metrics = {"loss": 0.0, "mean_reward": 0.0}
@@ -205,8 +213,13 @@ def train_reinforce(
             epoch_metrics["mean_reward"] += metrics["mean_reward"]
 
             if global_step % cfg.cado.log_interval == 0:
+                # No explicit step=; the wandb x-axis is bound to
+                # train/global_step via define_metric in run_train.py.
                 wandb.log(
-                    {f"train/{k}": v for k, v in metrics.items()}, step=global_step
+                    {
+                        **{f"train/{k}": v for k, v in metrics.items()},
+                        "train/global_step": global_step,
+                    }
                 )
             global_step += 1
             pbar.set_postfix(
@@ -215,7 +228,7 @@ def train_reinforce(
             )
 
         # Periodic validation
-        if epoch % cfg.cado.eval_every == 0:
+        if epoch % cfg.cado.eval_every == 0 or epoch == cfg.cado.epochs:
             model.eval()
             pred_len, gt_len, gap = evaluate(
                 model=model,
@@ -227,8 +240,36 @@ def train_reinforce(
                 max_instances=cfg.cado.eval_subset,
             )
             wandb.log(
-                {"val/pred_len": pred_len, "val/gt_len": gt_len, "val/gap_pct": gap},
-                step=global_step,
+                {
+                    "val/pred_len": pred_len,
+                    "val/gt_len": gt_len,
+                    "val/gap_pct": gap,
+                    "epoch": epoch,
+                }
             )
-            print(f"  Epoch {epoch}: gap = {gap:.2f}%")
+
+            # Track + save best checkpoint.
+            if gap < best_gap:
+                best_gap = gap
+                if ckpt_path is not None:
+                    ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+                    torch.save(
+                        {
+                            "model_state_dict": model.state_dict(),
+                            "optimizer_state_dict": optimizer.state_dict(),
+                            "epoch": epoch,
+                            "best_gap": best_gap,
+                            "global_step": global_step,
+                        },
+                        ckpt_path,
+                    )
+                    print(
+                        f"  Epoch {epoch}: gap = {gap:.2f}%  [saved best to {ckpt_path}]"
+                    )
+                else:
+                    print(f"  Epoch {epoch}: gap = {gap:.2f}%  [new best]")
+            else:
+                print(f"  Epoch {epoch}: gap = {gap:.2f}%")
             model.train()
+
+    return best_gap

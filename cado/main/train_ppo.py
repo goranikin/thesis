@@ -26,13 +26,15 @@ Per-step view:
         policy_loss  = -mean(min(surr1, surr2))
 """
 
+from pathlib import Path
+
 import torch
 import torch.nn.functional as F
-from cado.evaluate import evaluate
 from pydantic import BaseModel, ConfigDict
 from tqdm import tqdm
 
 import wandb
+from cado.evaluate import evaluate
 from cado.models.model import CADOTSP
 from difusco.models.diffusion import InferenceSchedule
 
@@ -291,13 +293,28 @@ def ppo_outer_step(
     return metrics
 
 
-def train_ppo(model, train_loader, val_loader, optimizer, device, cfg):
-    """Outer training loop. Mirrors train_reinforce but calls ppo_outer_step."""
+def train_ppo(
+    model: CADOTSP,
+    train_loader,
+    val_loader,
+    optimizer: torch.optim.Optimizer,
+    device,
+    cfg,
+    *,
+    ckpt_path: Path | None = None,
+) -> float:
+    """
+    Outer training loop. Mirrors train_reinforce but calls ppo_outer_step.
+
+    Returns:
+        best_gap: the lowest validation gap observed during training.
+    """
 
     model.train()
     accum_batch = cfg.cado.batch_size
     samples_per_epoch = cfg.cado.samples_per_epoch
     global_step = 0
+    best_gap = float("inf")
     train_iter = iter(train_loader)
 
     for epoch in range(1, cfg.cado.epochs + 1):
@@ -327,8 +344,13 @@ def train_ppo(model, train_loader, val_loader, optimizer, device, cfg):
             )
 
             if global_step % cfg.cado.log_interval == 0:
+                # No explicit step=; x-axis is bound to train/global_step
+                # via define_metric in run_train.py.
                 wandb.log(
-                    {f"train/{k}": v for k, v in metrics.items()}, step=global_step
+                    {
+                        **{f"train/{k}": v for k, v in metrics.items()},
+                        "train/global_step": global_step,
+                    }
                 )
             global_step += 1
             pbar.set_postfix(
@@ -337,7 +359,7 @@ def train_ppo(model, train_loader, val_loader, optimizer, device, cfg):
                 reward=f"{metrics['mean_reward']:.4f}",
             )
 
-        if epoch % cfg.cado.eval_every == 0:
+        if epoch % cfg.cado.eval_every == 0 or epoch == cfg.cado.epochs:
             model.eval()
             pred_len, gt_len, gap = evaluate(
                 model=model,
@@ -349,8 +371,35 @@ def train_ppo(model, train_loader, val_loader, optimizer, device, cfg):
                 max_instances=cfg.cado.eval_subset,
             )
             wandb.log(
-                {"val/pred_len": pred_len, "val/gt_len": gt_len, "val/gap_pct": gap},
-                step=global_step,
+                {
+                    "val/pred_len": pred_len,
+                    "val/gt_len": gt_len,
+                    "val/gap_pct": gap,
+                    "epoch": epoch,
+                }
             )
-            print(f"  Epoch {epoch}: gap = {gap:.2f}%")
+
+            if gap < best_gap:
+                best_gap = gap
+                if ckpt_path is not None:
+                    ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+                    torch.save(
+                        {
+                            "model_state_dict": model.state_dict(),
+                            "optimizer_state_dict": optimizer.state_dict(),
+                            "epoch": epoch,
+                            "best_gap": best_gap,
+                            "global_step": global_step,
+                        },
+                        ckpt_path,
+                    )
+                    print(
+                        f"  Epoch {epoch}: gap = {gap:.2f}%  [saved best to {ckpt_path}]"
+                    )
+                else:
+                    print(f"  Epoch {epoch}: gap = {gap:.2f}%  [new best]")
+            else:
+                print(f"  Epoch {epoch}: gap = {gap:.2f}%")
             model.train()
+
+    return best_gap
