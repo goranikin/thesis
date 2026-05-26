@@ -12,8 +12,8 @@ from typing import Literal
 from omegaconf import DictConfig, OmegaConf
 from pydantic import Field
 
-from difusco.types.base import Schema
-from difusco.types.config import (
+from difusco.tsp.types.base import Schema
+from difusco.tsp.types.config import (
     DataConfig,
     DiffusionConfig,
     ModelConfig,

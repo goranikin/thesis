@@ -30,7 +30,7 @@ from cado.main.train_rf import train_reinforce
 from cado.models.lora import apply_hybrid_ft, trainable_parameter_summary
 from cado.models.model import CADOTSP
 from cado.types import CADORunConfig
-from difusco.dataset import TSPDataset, collate_tsp
+from difusco.tsp.dataset import TSPDataset, collate_tsp
 from utils import select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")

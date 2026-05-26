@@ -1,5 +1,5 @@
-from difusco.types.base import Schema
-from difusco.types.config import (
+from difusco.tsp.types.base import Schema
+from difusco.tsp.types.config import (
     DataConfig,
     DiffusionConfig,
     InferenceConfig,
@@ -8,7 +8,7 @@ from difusco.types.config import (
     TrainingConfig,
     WandbConfig,
 )
-from difusco.types.training import EpochRecord, FitResult
+from difusco.tsp.types.training import EpochRecord, FitResult
 
 __all__ = [
     "Schema",

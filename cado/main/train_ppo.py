@@ -36,7 +36,7 @@ from tqdm import tqdm
 import wandb
 from cado.evaluate import evaluate
 from cado.models.model import CADOTSP
-from difusco.models.diffusion import InferenceSchedule
+from difusco.tsp.models.diffusion import InferenceSchedule
 
 # --------------------------------------------------------------------------- #
 # Rollout buffer

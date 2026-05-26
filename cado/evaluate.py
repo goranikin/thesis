@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from cado.models.model import CADOTSP
-from difusco.decoding import compute_tour_length, greedy_decode_tsp, two_opt
+from difusco.tsp.decoding import compute_tour_length, greedy_decode_tsp, two_opt
 
 
 def _graphs_in_batch(node_feat: torch.Tensor, num_nodes: int) -> int:
