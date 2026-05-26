@@ -16,10 +16,10 @@ import time
 import torch
 from torch.utils.data import DataLoader
 
-from difusco.dataset import TSPDataset, collate_tsp
-from difusco.main.trainer import Trainer
-from difusco.models.model import DifuscoTSP
-from difusco.types import RunConfig
+from difusco.tsp.dataset import TSPDataset, collate_tsp
+from difusco.tsp.main.trainer import Trainer
+from difusco.tsp.models.model import DifuscoTSP
+from difusco.tsp.types import RunConfig
 from utils import select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")

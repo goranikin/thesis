@@ -78,7 +78,7 @@ def _build_loaders(
     )
     val_loader = DataLoader(
         val_set,
-        batch_size=1,
+        batch_size=cfg.cado.eval_batch_size,
         shuffle=False,
         collate_fn=collate_tsp,
         num_workers=0,
@@ -196,6 +196,10 @@ def main(hydra_cfg: DictConfig) -> None:
         f"  Epochs: {cfg.cado.epochs}, samples/epoch: {cfg.cado.samples_per_epoch}"
     )
     logger.info(f"  Batch: {cfg.cado.batch_size}, M_train: {cfg.cado.M_train}")
+    logger.info(
+        f"  Eval: subset={cfg.cado.eval_subset}, batch={cfg.cado.eval_batch_size}, "
+        f"M_eval={cfg.cado.M_eval}"
+    )
     logger.info("=" * 60)
 
     if cfg.cado.algorithm == "reinforce":

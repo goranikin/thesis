@@ -240,6 +240,7 @@ def train_reinforce(
                 model=model,
                 val_loader=val_loader,
                 device=device,
+                num_nodes=cfg.data.num_nodes,
                 num_inference_steps=cfg.cado.M_eval,
                 schedule_type=cfg.cado.schedule_type,
                 use_2opt=True,

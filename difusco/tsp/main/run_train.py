@@ -9,11 +9,11 @@ from omegaconf import DictConfig
 from torch.utils.data import DataLoader, random_split
 
 import wandb
-from difusco.dataset import TSPDataset, collate_tsp
-from difusco.main.trainer import Trainer
-from difusco.models.model import DifuscoTSP
-from difusco.types import RunConfig
-from difusco.types.training import FitResult
+from difusco.tsp.dataset import TSPDataset, collate_tsp
+from difusco.tsp.main.trainer import Trainer
+from difusco.tsp.models.model import DifuscoTSP
+from difusco.tsp.types import RunConfig
+from difusco.tsp.types.training import FitResult
 from utils import select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")

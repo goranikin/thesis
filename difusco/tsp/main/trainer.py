@@ -9,10 +9,10 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import wandb
-from difusco.decoding import compute_tour_length, greedy_decode_tsp, two_opt
-from difusco.models.model import DifuscoTSP
-from difusco.types import EpochRecord, FitResult, RunConfig
-from difusco.types.config import InferenceConfig, TrainingConfig
+from difusco.tsp.decoding import compute_tour_length, greedy_decode_tsp, two_opt
+from difusco.tsp.models.model import DifuscoTSP
+from difusco.tsp.types import EpochRecord, FitResult, RunConfig
+from difusco.tsp.types.config import InferenceConfig, TrainingConfig
 from utils import select_device
 
 logger = logging.getLogger(__name__)

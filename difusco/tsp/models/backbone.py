@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from difusco.models.embeddings import (
+from difusco.tsp.models.embeddings import (
     PositionEmbeddingSine2D,
     ScalarEmbeddingSine,
     timestep_embedding,

@@ -23,7 +23,7 @@ cado:
   grad_clip: 1.0
 
   M_train: 5
-  M_eval: 50
+  M_eval: 25
   schedule_type: cosine
 
   init_noise: bernoulli_half
@@ -38,7 +38,8 @@ cado:
   log_interval: 4
 
   eval_every: 10
-  eval_subset: 200
+  eval_subset: 100
+  eval_batch_size: 16
 
   save_best_only: true
   ckpt_dir: checkpoints/cado

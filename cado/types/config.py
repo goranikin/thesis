@@ -62,6 +62,7 @@ class CADOConfig(Schema):
     log_interval: int = 4
     eval_every: int = 25
     eval_subset: int = 200
+    eval_batch_size: int = 16  # batched super-graph eval (collate_tsp)
 
     # Checkpointing.
     save_best_only: bool = True

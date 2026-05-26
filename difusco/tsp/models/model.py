@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from difusco.models.backbone import DifuscoBackbone
-from difusco.models.diffusion import (
+from difusco.tsp.models.backbone import DifuscoBackbone
+from difusco.tsp.models.diffusion import (
     CategoricalDiffusion,
     InferenceSchedule,
 )

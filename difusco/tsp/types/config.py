@@ -3,7 +3,7 @@ from typing import Literal
 from omegaconf import DictConfig, OmegaConf
 from pydantic import Field
 
-from difusco.types.base import Schema
+from difusco.tsp.types.base import Schema
 
 
 class ModelConfig(Schema):

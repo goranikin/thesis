@@ -1,4 +1,4 @@
-from difusco.types.base import Schema
+from difusco.tsp.types.base import Schema
 
 
 class EpochRecord(Schema):
