@@ -79,7 +79,9 @@ class TspGenerationConfig(BatchGenerationConfig, NodeRangeConfig, TspSolverConfi
     def output_path(self) -> str:
         if self.filename is not None:
             return self.filename
-        return f"tsp{self.min_nodes}-{self.max_nodes}_{self.solver}.txt"
+        return (
+            f"tsp{self.min_nodes}-{self.max_nodes}_{self.num_samples}_{self.solver}.txt"
+        )
 
 
 class VrpSolverConfig(Schema):
@@ -100,7 +102,7 @@ class CvrpGenerationConfig(
     def output_path(self) -> str:
         if self.filename is not None:
             return self.filename
-        return f"cvrp{self.min_nodes}-{self.max_nodes}_pyvrp.txt"
+        return f"cvrp{self.min_nodes}-{self.max_nodes}_{self.num_samples}_pyvrp.txt"
 
 
 class MdvrpDepotRangeConfig(Schema):
@@ -145,5 +147,5 @@ class MdvrpGenerationConfig(
         return (
             f"mdvrp{self.min_customers_per_depot}-"
             f"{self.max_customers_per_depot}x"
-            f"{self.min_depots}-{self.max_depots}_pyvrp.txt"
+            f"{self.min_depots}-{self.max_depots}_{self.num_samples}_pyvrp.txt"
         )
