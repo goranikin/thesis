@@ -28,7 +28,7 @@ cado:
 
   init_noise: bernoulli_half
 
-  epochs: 100 # paper: 3000 (TSP-100);
+  epochs: 1000 # paper: 3000 (TSP-100);
   samples_per_epoch: 128
   batch_size: 32
 
@@ -37,7 +37,7 @@ cado:
 
   log_interval: 4
 
-  eval_every: 5
+  eval_every: 10
   eval_subset: 200
 
   save_best_only: true

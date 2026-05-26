@@ -79,5 +79,6 @@ def main(hydra_cfg: DictConfig) -> None:
     )
 
 
+# uv run python -m data_generation.main.generate_cvrp_data
 if __name__ == "__main__":
     main()
