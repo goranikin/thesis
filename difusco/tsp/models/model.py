@@ -58,7 +58,7 @@ class DifuscoTSP(nn.Module):
         Categorical diffusion training.
         """
         # 2. Add Bernoulli noise: sample x_t ~ q(x_t | x_0)
-        x_t = self.diffusion.q_sample(edge_label, t.item())
+        x_t = self.diffusion.q_sample(edge_label, t)
 
         # 3. Forward pass: predict p(x_0 = 1 | x_t, graph, t)
         logits = self.backbone(node_feat, edge_index, edge_dist, x_t, t.float())

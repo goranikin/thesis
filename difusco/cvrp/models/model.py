@@ -1,8 +1,3 @@
-"""
-DifuscoCVRP — same diffusion training/inference loop as DifuscoTSP,
-just wired to the CVRP backbone.
-"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,7 +28,6 @@ class DifuscoCVRP(nn.Module):
         )
         self.diffusion = CategoricalDiffusion(T, beta_start, beta_end)
 
-    # ------------------------------------------------------------- training
     def training_step(self, batch, device):
         """
         One training step over a batched super-graph from collate_cvrp.
@@ -52,13 +46,12 @@ class DifuscoCVRP(nn.Module):
 
         t = torch.randint(0, self.T, (1,), device=device).long()
 
-        x_t = self.diffusion.q_sample(edge_label, t.item())
+        x_t = self.diffusion.q_sample(edge_label, t)
         logits = self.backbone(node_feat, edge_index, edge_dist, x_t, t.float())
 
         targets = edge_label.long()
         return F.cross_entropy(logits, targets)
 
-    # ------------------------------------------------------------- inference
     @torch.no_grad()
     def generate(
         self,

@@ -29,6 +29,9 @@ class DifuscoCVRPBackbone(nn.Module):
         self.dropout = dropout
 
         # Node: 4 features -> hidden_dim
+        # Here's the big difference from TSP!
+        # [x, y, demand/Q, is_depot]
+        # is_depot is embedded by an embedding layer
         self.node_encoder = CVRPNodeEncoder(hidden_dim)
 
         # Edge: distance (hidden_dim // 2) || noisy label (hidden_dim // 2) -> hidden_dim
@@ -69,13 +72,13 @@ class DifuscoCVRPBackbone(nn.Module):
         Returns:
             (E, 2) logits
         """
-        h = self.node_encoder(node_feat)                                 # (N+1, hidden)
+        h = self.node_encoder(node_feat)  # (N+1, hidden)
 
-        e_dist = self.edge_dist_embed(edge_distances)                    # (E, hidden/2)
-        e_noise = self.edge_noise_embed(x_t)                             # (E, hidden/2)
-        e = torch.cat([e_dist, e_noise], dim=-1)                         # (E, hidden)
+        e_dist = self.edge_dist_embed(edge_distances)  # (E, hidden/2)
+        e_noise = self.edge_noise_embed(x_t)  # (E, hidden/2)
+        e = torch.cat([e_dist, e_noise], dim=-1)  # (E, hidden)
 
-        t_emb = timestep_embedding(t, self.hidden_dim)                   # (hidden,)
+        t_emb = timestep_embedding(t, self.hidden_dim)  # (hidden,)
         t_emb = self.time_proj(t_emb.unsqueeze(0) if t_emb.dim() == 1 else t_emb)
 
         for layer in self.layers:
@@ -84,4 +87,11 @@ class DifuscoCVRPBackbone(nn.Module):
                 h = F.dropout(h, p=self.dropout, training=True)
                 e = F.dropout(e, p=self.dropout, training=True)
 
-        return self.edge_head(e)                                          # (E, 2)
+        return self.edge_head(e)  # (E, 2)
+
+
+# How do we know which edges belong to which vehicle's tour? I mean, can we separate the edges into different sets for each vehicle?
+# 1. Nerual networks do not know how to assign edges to vehicles. It only outputs a binary label for each edge.
+# 2. The recover process should partition the edges into different sets for each vehicle.
+# Customer nodes:  degree = 2  (one in-edge, one out-edge, like TSP)
+# Depot node:      degree = 2K (where K is the number of vehicles used)

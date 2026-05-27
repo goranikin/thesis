@@ -30,7 +30,7 @@ import torch
 from sklearn.neighbors import KDTree
 from torch.utils.data import Dataset
 
-from data_generation.types.dataset import CvrpSample
+from data_generation.types.dataset import CvrpSample, CvrpInstance
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +88,8 @@ class CVRPDataset(Dataset):
             routes:    list[list[int]] of 0-indexed customer indices
                        (e.g., routes[0] = [3, 7, 12] means depot->c3->c7->c12->depot)
         """
-        sample = CvrpSample.from_line(line)
-        instance = sample.instance
+        sample: CvrpSample = CvrpSample.from_line(line)
+        instance: CvrpInstance = sample.instance
 
         # CvrpSample.from_line stores coords in internal [0, 1000] units; normalize.
         coords = np.array(
@@ -224,7 +224,12 @@ class CVRPDataset(Dataset):
         dists_knn = dists_knn[:, 1:]  # (N, k)
         idx_knn = idx_knn[:, 1:] + 1  # +1 to map back to 0-indexed (depot=0, cust=1..N)
 
-        cust_src_local = np.arange(1, N + 1).reshape(-1, 1).repeat(idx_knn.shape[1], axis=1).reshape(-1)
+        cust_src_local = (
+            np.arange(1, N + 1)
+            .reshape(-1, 1)
+            .repeat(idx_knn.shape[1], axis=1)
+            .reshape(-1)
+        )
         cust_dst_local = idx_knn.reshape(-1)
         cust_dist_local = dists_knn.reshape(-1)
 
@@ -235,15 +240,9 @@ class CVRPDataset(Dataset):
         cust_to_depot_dst = depot_to_cust_src
         depot_dists = np.sqrt(((coords[1:] - coords[0]) ** 2).sum(axis=1))
 
-        src = np.concatenate(
-            [cust_src_local, depot_to_cust_src, cust_to_depot_src]
-        )
-        dst = np.concatenate(
-            [cust_dst_local, depot_to_cust_dst, cust_to_depot_dst]
-        )
-        dists = np.concatenate(
-            [cust_dist_local, depot_dists, depot_dists]
-        )
+        src = np.concatenate([cust_src_local, depot_to_cust_src, cust_to_depot_src])
+        dst = np.concatenate([cust_dst_local, depot_to_cust_dst, cust_to_depot_dst])
+        dists = np.concatenate([cust_dist_local, depot_dists, depot_dists])
 
         edge_index = torch.from_numpy(np.stack([src, dst], axis=0)).long()
         edge_dist = torch.from_numpy(dists).float()
@@ -304,7 +303,7 @@ def test_cvrp_dataset():
     dataset = CVRPDataset(
         file_path="data/cvrp50-50_128000_pyvrp.txt",
         num_customers=50,
-        sparse_factor=-1,
+        sparse_factor=1,
     )
     dataloader = DataLoader(
         dataset, batch_size=4, shuffle=True, collate_fn=collate_cvrp

@@ -20,7 +20,7 @@ the K routes.
 import numpy as np
 import torch
 
-DEPOT = 0  # node 0 is always the depot in our convention
+DEPOT = 0
 
 
 def greedy_decode_cvrp(
@@ -42,7 +42,7 @@ def greedy_decode_cvrp(
                 (e.g., [[3, 7], [1, 5, 12]]). Depot is implicit at start/end.
     """
     N1 = node_coords.shape[0]  # total nodes including depot
-    N = N1 - 1                 # number of customers
+    N = N1 - 1  # number of customers
     E = edge_index.shape[1]
 
     # One-shot CPU transfer (same trick as the TSP decoder).
@@ -62,7 +62,7 @@ def greedy_decode_cvrp(
         score = float(heatmap_np[k])
         edge_scores[key] = edge_scores.get(key, 0.0) + score
 
-    for (u, v) in edge_scores:
+    for u, v in edge_scores:
         dx = coords_np[u, 0] - coords_np[v, 0]
         dy = coords_np[u, 1] - coords_np[v, 1]
         dist = float((dx * dx + dy * dy) ** 0.5)
@@ -95,7 +95,7 @@ def greedy_decode_cvrp(
     chain_demand: dict[int, int] = {i: int(demands_np[i]) for i in range(N1)}
 
     selected_customer_edges = 0  # excludes depot edges; target is N - K (unknown)
-    selected_depot_edges = 0     # 2 per route
+    selected_depot_edges = 0  # 2 per route
 
     for (u, v), _ in sorted_edges:
         # Degree cap for customers: 2 each.
@@ -202,9 +202,7 @@ def _extract_routes(
 
 
 # ------------------------------------------------------------------ utilities
-def compute_route_length(
-    routes: list[list[int]], node_coords: torch.Tensor
-) -> float:
+def compute_route_length(routes: list[list[int]], node_coords: torch.Tensor) -> float:
     """
     Total Euclidean distance over all routes, depot included at start and end
     of every route.
