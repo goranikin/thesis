@@ -41,17 +41,14 @@ def greedy_decode_cvrp(
         routes: list of routes, each a list of 0-indexed customer ids
                 (e.g., [[3, 7], [1, 5, 12]]). Depot is implicit at start/end.
     """
-    N1 = node_coords.shape[0]  # total nodes including depot
-    N = N1 - 1  # number of customers
-    E = edge_index.shape[1]
+    N1 = node_coords.shape[0]  # number of nodes
+    E = edge_index.shape[1]  # number of edges
 
-    # One-shot CPU transfer (same trick as the TSP decoder).
     edge_index_np = edge_index.detach().cpu().numpy()
     heatmap_np = heatmap.detach().cpu().numpy()
     coords_np = node_coords.detach().cpu().numpy()
     demands_np = demands.detach().cpu().numpy().astype(np.int64)
 
-    # ------------------------------------------------------------ score table
     edge_scores: dict[tuple[int, int], float] = {}
     for k in range(E):
         u = int(edge_index_np[0, k])
@@ -61,17 +58,20 @@ def greedy_decode_cvrp(
         key = (min(u, v), max(u, v))
         score = float(heatmap_np[k])
         edge_scores[key] = edge_scores.get(key, 0.0) + score
+        # heatmap[u -> v] + heatmap[v -> u]
 
     for u, v in edge_scores:
         dx = coords_np[u, 0] - coords_np[v, 0]
         dy = coords_np[u, 1] - coords_np[v, 1]
         dist = float((dx * dx + dy * dy) ** 0.5)
         edge_scores[(u, v)] /= dist + 1e-8
+        # divided by dist
 
+    # sort by score
+    # score = (heatmap[u -> v] + heatmap[v -> u]) / dist + regularization term
     sorted_edges = sorted(edge_scores.items(), key=lambda x: x[1], reverse=True)
 
-    # ------------------------------------------------------------ greedy add
-    # adj[node] = list of neighbours that have been chosen
+    # adj[node] = Current selected adjacency list
     adj: dict[int, list[int]] = {i: [] for i in range(N1)}
     # Union-find restricted to customers, used to forbid customer-only cycles.
     parent = list(range(N1))
@@ -87,24 +87,21 @@ def greedy_decode_cvrp(
         if ra != rb:
             parent[ra] = rb
 
-    # Customer chains: each customer is in a chain that hangs off (at most) one
-    # depot endpoint on each side. When we close a chain by attaching its other
-    # endpoint to the depot, we lock in its total demand.
-    # We track, for each chain, its current total demand. A chain is identified
-    # by its union-find root.
+    # total demand in the chain.
     chain_demand: dict[int, int] = {i: int(demands_np[i]) for i in range(N1)}
 
     selected_customer_edges = 0  # excludes depot edges; target is N - K (unknown)
     selected_depot_edges = 0  # 2 per route
 
     for (u, v), _ in sorted_edges:
-        # Degree cap for customers: 2 each.
-        # Depot has no degree cap.
+        # Check A - degree cap
+        # A customer node has only 2 edges, and a depot node has no degree cap.
         if u != DEPOT and len(adj[u]) >= 2:
             continue
         if v != DEPOT and len(adj[v]) >= 2:
             continue
 
+        # Check B - capacity and subtour, based on edge type
         if u == DEPOT or v == DEPOT:
             # Depot-customer edge. The customer side must not already be the
             # endpoint of a chain whose total demand exceeds capacity.
@@ -132,12 +129,10 @@ def greedy_decode_cvrp(
             chain_demand[new_root] = merged_demand
             selected_customer_edges += 1
 
-        # Stop once every customer has degree 2 — at that point all chains
-        # must be closed to the depot and we have a complete solution.
-        if all(len(adj[i]) == 2 for i in range(1, N1)):
+        is_customer_has_degree_2: bool = all(len(adj[i]) == 2 for i in range(1, N1))
+        if is_customer_has_degree_2:
             break
 
-    # ------------------------------------------------------------ repair pass
     # Some customers may still have degree < 2 if the heatmap was weak.
     # Close any open chain by attaching its loose end(s) to the depot.
     open_customers = [i for i in range(1, N1) if len(adj[i]) < 2]
@@ -147,14 +142,11 @@ def greedy_decode_cvrp(
             adj[u].append(DEPOT)
             adj[DEPOT].append(u)
 
-    return _extract_routes(adj, N1, demands_np, capacity)
+    return _extract_routes(adj)
 
 
 def _extract_routes(
     adj: dict[int, list[int]],
-    N1: int,
-    demands_np: np.ndarray,
-    capacity: int,
 ) -> list[list[int]]:
     """
     Walk away from the depot along each chosen depot edge to recover a route.

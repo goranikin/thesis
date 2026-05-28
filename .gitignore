@@ -24,3 +24,6 @@ data/
 # IDEs & tooling
 .vscode/
 .ruff_cache/
+
+# temp
+simple_agnn/
