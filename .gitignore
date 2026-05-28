@@ -27,3 +27,6 @@ data/
 
 # temp
 simple_agnn/
+
+# VESSL job configs (local only)
+vessl_ai/
