@@ -22,7 +22,7 @@ class CategoricalDiffusion:
         self.alphas_cumprod = torch.tensor(np.cumprod(alphas), dtype=torch.float64)
 
     def q_sample(self, x_0: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
-        alpha_bar = self.alphas_cumprod[t].float().to(x_0.device)
+        alpha_bar = self.alphas_cumprod[t.to("cpu")].float().to(x_0.device)
         prob_one = x_0 * (1.0 + alpha_bar) / 2.0 + (1.0 - x_0) * (1.0 - alpha_bar) / 2.0
         return torch.bernoulli(prob_one)
 

@@ -52,7 +52,7 @@ class CategoricalDiffusion:
         Returns:
             x_t: (E,) sampled noisy edge labels {0, 1}
         """
-        alpha_bar = self.alphas_cumprod[t].float().to(x_0.device)
+        alpha_bar = self.alphas_cumprod[t.to("cpu")].float().to(x_0.device)
 
         # Probability that x_t = 1
         # If x_0 = 1: prob = (1 + ᾱ_t) / 2
