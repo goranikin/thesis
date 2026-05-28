@@ -1,6 +1,6 @@
 defaults:
   - data: cvrp50
-  - model: small
+  - model: paper
   - diffusion: categorical
   - training: default
   - inference: default

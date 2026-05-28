@@ -22,9 +22,14 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pytest>=8.4.0",
     "ruff>=0.15.14",
     "ty>=0.0.38",
 ]
 
 [tool.uv.sources]
 pyconcorde = { git = "https://github.com/jvkersch/pyconcorde" }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["difusco"]
