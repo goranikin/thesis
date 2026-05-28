@@ -4,6 +4,7 @@ defaults:
   - diffusion: categorical
   - training: default
   - inference: default
+  - _self_
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
 

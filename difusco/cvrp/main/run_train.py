@@ -12,6 +12,7 @@ from pathlib import Path
 
 import hydra
 import torch
+from hydra.utils import get_original_cwd
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader, random_split
 
@@ -43,8 +44,9 @@ def main(hydra_cfg: DictConfig) -> None:
     device: torch.device = select_device()
     logger.info(f"Device: {device}")
 
+    data_path = Path(get_original_cwd()) / cfg.data_path
     dataset = CVRPDataset(
-        file_path=cfg.data_path,
+        file_path=str(data_path),
         num_customers=cfg.data.num_customers,
         sparse_factor=cfg.data.sparse_factor,
     )
