@@ -4,9 +4,10 @@ defaults:
   - diffusion: categorical
   - training: default
   - inference: default
-  - wandb: default
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
 
 wandb:
   project: difusco-cvrp
+  mode: online
+  run_name: null
