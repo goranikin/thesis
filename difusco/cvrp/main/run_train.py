@@ -6,7 +6,6 @@ uv run python -m difusco.cvrp.main.run_train \\
 """
 
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -129,9 +128,10 @@ def main(hydra_cfg: DictConfig) -> None:
     logger.info(f"  Training for {cfg.training.epochs} epochs")
     logger.info("=" * 60)
 
-    ckpt_dir = (
-        Path(os.getcwd()) / "checkpoints" / datetime.now().strftime("%Y%m%d_%H%M%S")
-    )
+    _ckpt_base = Path(cfg.checkpoint_dir)
+    if not _ckpt_base.is_absolute():
+        _ckpt_base = Path(get_original_cwd()) / _ckpt_base
+    ckpt_dir = _ckpt_base / datetime.now().strftime("%Y%m%d_%H%M%S")
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"  Checkpoints: {ckpt_dir}")
 

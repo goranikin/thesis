@@ -57,6 +57,7 @@ class WandbConfig(Schema):
 
 class RunConfig(Schema):
     data_path: str = "./data/cvrp50-50_128000_pyvrp.txt"
+    checkpoint_dir: str = "./checkpoints"
     model: ModelConfig = Field(default_factory=ModelConfig)
     diffusion: DiffusionConfig = Field(default_factory=DiffusionConfig)
     training: TrainingConfig = Field(default_factory=TrainingConfig)

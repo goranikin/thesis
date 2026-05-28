@@ -2,11 +2,12 @@ defaults:
   - data: cvrp50
   - model: paper
   - diffusion: categorical
-  - training: default
+  - training: local
   - inference: default
   - _self_
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
+checkpoint_dir: ./checkpoints
 
 wandb:
   project: difusco-cvrp
