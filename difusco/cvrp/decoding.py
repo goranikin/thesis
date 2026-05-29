@@ -232,3 +232,101 @@ def routes_to_canonical(routes: list[list[int]]) -> str:
     """Stable text representation, useful for logging / unit tests."""
     rendered = [" ".join(str(c) for c in route) for route in routes]
     return " | ".join(rendered)
+
+
+def _open_route_distance(
+    route: list[int], coords: np.ndarray, depot: int = DEPOT
+) -> float:
+    """Euclidean length of depot -> customers -> depot (open path)."""
+    if not route:
+        return 0.0
+    total = 0.0
+    path = [depot, *route, depot]
+    for u, v in zip(path[:-1], path[1:]):
+        dx = coords[u, 0] - coords[v, 0]
+        dy = coords[u, 1] - coords[v, 1]
+        total += float((dx * dx + dy * dy) ** 0.5)
+    return total
+
+
+def two_opt_route(
+    route: list[int],
+    node_coords: torch.Tensor,
+    max_iterations: int = 100,
+) -> list[int]:
+    """
+    Intra-route 2-opt on one open CVRP route (depot fixed at both ends).
+
+    Reversing a segment does not change which customers are served, so
+    capacity is unchanged. Same move as ``difusco.tsp.decoding.two_opt`` but
+    without the closing edge from the last customer back to the first.
+    """
+    if len(route) < 3:
+        return list(route)
+
+    coords = node_coords.detach().cpu().numpy()
+    route = list(route)
+    n = len(route)
+    best_distance = _open_route_distance(route, coords)
+    improved = True
+    iteration = 0
+
+    while improved and iteration < max_iterations:
+        improved = False
+        iteration += 1
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                new_route = route[:i] + route[i : j + 1][::-1] + route[j + 1 :]
+                new_distance = _open_route_distance(new_route, coords)
+                if new_distance < best_distance - 1e-10:
+                    route = new_route
+                    best_distance = new_distance
+                    improved = True
+                    break
+            if improved:
+                break
+
+    return route
+
+
+def two_opt_cvrp(
+    routes: list[list[int]],
+    node_coords: torch.Tensor,
+    max_iterations: int = 100,
+) -> list[list[int]]:
+    """Apply intra-route 2-opt to every route independently."""
+    return [
+        two_opt_route(route, node_coords, max_iterations=max_iterations)
+        for route in routes
+    ]
+
+
+def decode_cvrp(
+    heatmap: torch.Tensor,
+    edge_index: torch.Tensor,
+    node_coords: torch.Tensor,
+    demands: torch.Tensor,
+    capacity: int,
+    *,
+    use_2opt: bool = False,
+    max_2opt_iterations: int = 100,
+) -> list[list[int]]:
+    """
+    Heatmap decode + optional per-route 2-opt (same pipeline as TSP eval).
+
+    The heatmap greedy pass fixes topology (degree, no customer cycles, capacity).
+    2-opt only shortens each route geometrically without moving customers
+    between routes.
+    """
+    routes = greedy_decode_cvrp(
+        heatmap=heatmap,
+        edge_index=edge_index,
+        node_coords=node_coords,
+        demands=demands,
+        capacity=capacity,
+    )
+    if use_2opt:
+        routes = two_opt_cvrp(
+            routes, node_coords, max_iterations=max_2opt_iterations
+        )
+    return routes

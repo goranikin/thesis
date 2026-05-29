@@ -1,29 +1,5 @@
 """
-PPO fine-tuning for CADO (the DDPO-style implementation that the paper's
-supplementary code actually uses).
-
-The paper itself writes the REINFORCE objective (Eq. 9), but the supplementary
-code's `train_co.py` (lines 1125-1145) implements PPO with importance-ratio
-clipping. The two key ideas:
-
-  (a) Reuse each collected trajectory for K inner-epoch updates. This is much
-      more sample-efficient than vanilla REINFORCE.
-  (b) Clip the importance ratio   ρ = exp(log π_new - log π_old)   to stay near 1.
-      Standard PPO trick; bounds the per-step update magnitude.
-
-Per-step view:
-    For every transition (x_t, x_{t-1}, t) collected during rollout:
-        log_prob_old = mean Bernoulli log-prob under the rollout-time policy
-        advantage    = R(τ) - baseline               (same for all t in a trajectory)
-
-        # During the inner loop, run the backbone again on the SAME (x_t, t)
-        # but compute log_prob of the SAME x_{t-1}:
-        log_prob_new = q_posterior_with_logprob(x_t, x_0_pred_new, t, action=x_{t-1})
-
-        ratio        = exp(log_prob_new - log_prob_old)
-        surr1        = advantage * ratio
-        surr2        = advantage * clamp(ratio, 1 - ε, 1 + ε)
-        policy_loss  = -mean(min(surr1, surr2))
+PPO fine-tuning for CADO-TSP (DDPO-style).
 """
 
 from pathlib import Path
@@ -34,36 +10,22 @@ from pydantic import BaseModel, ConfigDict
 from tqdm import tqdm
 
 import wandb
-from cado.evaluate import evaluate
-from cado.models.model import CADOTSP
+from cado.tsp.evaluate import evaluate
+from cado.tsp.models.model import CADOTSP
 from difusco.tsp.models.diffusion import InferenceSchedule
-
-# --------------------------------------------------------------------------- #
-# Rollout buffer
-# --------------------------------------------------------------------------- #
 
 
 class Trajectory(BaseModel):
-    """
-    Stores all per-step quantities needed to recompute log_prob_new.
-
-    Each list has length M-1 (the number of stochastic transitions; the final
-    argmax step contributes no log-prob).
-    """
-
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    # Inputs that are constant across all steps of this trajectory
-    node_feat: torch.Tensor  # (N, 2)
-    edge_index: torch.Tensor  # (2, E)
-    edge_dist: torch.Tensor  # (E,)
-    # Per-step
-    x_t_list: list[torch.Tensor]  # state BEFORE each transition
-    x_tm1_list: list[torch.Tensor]  # state AFTER each transition (the "action")
-    t_list: list[int]  # timestep index
-    log_prob_old: list[torch.Tensor]  # detached scalar per step
-    # Trajectory-level
-    advantage: float = 0.0  # set after all trajectories are collected
+    node_feat: torch.Tensor
+    edge_index: torch.Tensor
+    edge_dist: torch.Tensor
+    x_t_list: list[torch.Tensor]
+    x_tm1_list: list[torch.Tensor]
+    t_list: list[int]
+    log_prob_old: list[torch.Tensor]
+    advantage: float = 0.0
 
 
 def collect_trajectory(
@@ -72,13 +34,6 @@ def collect_trajectory(
     M_train: int,
     schedule_type: str,
 ) -> tuple[Trajectory, torch.Tensor]:
-    """
-    Roll out one trajectory with no gradients, saving every per-step quantity
-    needed for PPO's recomputation step.
-
-    Returns: (Trajectory, x_0)
-    """
-
     node_feat, edge_index, edge_dist, _ = instance
     device = next(model.parameters()).device
     node_feat = node_feat.to(device)
@@ -87,7 +42,6 @@ def collect_trajectory(
     E = edge_index.shape[1]
 
     timesteps = InferenceSchedule.get_schedule(schedule_type, M_train, model.T)
-
     x_t = torch.bernoulli(0.5 * torch.ones(E, device=device))
 
     traj = Trajectory(
@@ -107,37 +61,20 @@ def collect_trajectory(
             x_0_prob = F.softmax(logits, dim=-1)[:, 1]
 
             if i == len(timesteps) - 1:
-                # Final deterministic argmax — no transition to log.
                 x_0 = (x_0_prob > 0.5).float()
                 break
 
-            # Save the pre-transition state.
             traj.x_t_list.append(x_t.clone())
             traj.t_list.append(t)
-
-            # Sample x_{t-1}; we want the SAMPLE and the log-prob of it.
             x_tm1, logp = model.diffusion.q_posterior_with_logprob(x_t, x_0_prob, t)
             traj.x_tm1_list.append(x_tm1.clone())
             traj.log_prob_old.append(logp.detach())
-
-            x_t = x_tm1  # transition
+            x_t = x_tm1
 
     return traj, x_0
 
 
-# --------------------------------------------------------------------------- #
-# PPO update
-# --------------------------------------------------------------------------- #
-
-
 def recompute_log_prob(model, traj: Trajectory, step_idx: int) -> torch.Tensor:
-    """
-    Recompute log π_new(x_{t-1} | x_t, g) for one specific step of a trajectory.
-
-    This is the crucial PPO operation: we re-run the backbone with gradients
-    enabled, then evaluate the Bernoulli log-prob of the PREVIOUSLY-SAMPLED
-    action x_{t-1} under the new policy.
-    """
     x_t = traj.x_t_list[step_idx]
     x_tm1 = traj.x_tm1_list[step_idx]
     t = traj.t_list[step_idx]
@@ -148,9 +85,6 @@ def recompute_log_prob(model, traj: Trajectory, step_idx: int) -> torch.Tensor:
         traj.node_feat, traj.edge_index, traj.edge_dist, x_t, t_tensor
     )
     x_0_prob = F.softmax(logits, dim=-1)[:, 1]
-
-    # Pass `action=x_tm1` so we don't draw a new sample; we just want the
-    # log-prob of the OLD sample under the NEW policy.
     _, log_prob_new = model.diffusion.q_posterior_with_logprob(
         x_t, x_0_prob, t, action=x_tm1
     )
@@ -164,22 +98,11 @@ def ppo_update(
     clip_epsilon: float = 1e-4,
     grad_clip: float = 1.0,
 ) -> dict:
-    """
-    One PPO inner-epoch pass over all collected trajectories.
-
-    We loop over (trajectory, step) pairs. For each step we recompute
-    log_prob_new, form the clipped surrogate, and accumulate gradients.
-
-    Note on clip_epsilon: the CADO supplementary code uses a VERY small clip
-    (1e-4), reflecting that the policy changes only slightly per inner epoch.
-    Standard PPO for control uses 0.1–0.2. Start with 1e-4 to match the paper.
-    """
     losses = []
     ratios_log = []
 
     for traj in trajectories:
         advantage = torch.tensor(traj.advantage, device=traj.node_feat.device)
-        # Loop over the M-1 transitions in this trajectory.
         for step_idx in range(len(traj.x_t_list)):
             log_prob_new = recompute_log_prob(model, traj, step_idx)
             log_prob_old = traj.log_prob_old[step_idx]
@@ -189,10 +112,7 @@ def ppo_update(
             surr2 = advantage * torch.clamp(
                 ratio, 1.0 - clip_epsilon, 1.0 + clip_epsilon
             )
-            # Note: PPO MAXIMIZES min(surr1, surr2). With advantage > 0, this
-            # caps the upside; with advantage < 0, it caps the downside.
-            step_loss = -torch.min(surr1, surr2)
-            losses.append(step_loss)
+            losses.append(-torch.min(surr1, surr2))
             ratios_log.append(ratio.detach())
 
     loss = torch.stack(losses).mean()
@@ -209,11 +129,6 @@ def ppo_update(
         "mean_ratio": torch.stack(ratios_log).mean().item(),
         "grad_norm": grad_norm.item(),
     }
-
-
-# --------------------------------------------------------------------------- #
-# Full training loop
-# --------------------------------------------------------------------------- #
 
 
 def _ground_truth_length(edge_dist, edge_label):
@@ -233,15 +148,8 @@ def ppo_outer_step(
     clip_epsilon: float = 1e-4,
     grad_clip: float = 1.0,
 ) -> dict:
-    """
-    One outer step:
-      1. COLLECT  trajectories with no_grad.
-      2. COMPUTE  advantages.
-      3. UPDATE   model for `inner_epochs` inner passes (PPO core).
-    """
     device = next(model.parameters()).device
 
-    # 1. COLLECT
     trajectories = []
     rewards = []
     for instance in batch:
@@ -266,7 +174,6 @@ def ppo_outer_step(
 
     rewards_tensor = torch.tensor(rewards, device=device, dtype=torch.float32)
 
-    # 2. COMPUTE ADVANTAGES (same rule as REINFORCE)
     if reward_mode == "SR":
         advantages = (rewards_tensor - rewards_tensor.mean()) / (
             rewards_tensor.std() + 1e-6
@@ -276,9 +183,8 @@ def ppo_outer_step(
     for traj, adv in zip(trajectories, advantages.tolist()):
         traj.advantage = adv
 
-    # 3. INNER LOOP
     metrics = {"loss": 0.0, "mean_ratio": 0.0, "grad_norm": 0.0}
-    for k in range(inner_epochs):
+    for _ in range(inner_epochs):
         m = ppo_update(
             model,
             trajectories,
@@ -303,13 +209,6 @@ def train_ppo(
     *,
     ckpt_path: Path | None = None,
 ) -> float:
-    """
-    Outer training loop. Mirrors train_reinforce but calls ppo_outer_step.
-
-    Returns:
-        best_gap: the lowest validation gap observed during training.
-    """
-
     model.train()
     accum_batch = cfg.cado.batch_size
     samples_per_epoch = cfg.cado.samples_per_epoch
@@ -344,8 +243,6 @@ def train_ppo(
             )
 
             if global_step % cfg.cado.log_interval == 0:
-                # No explicit step=; x-axis is bound to train/global_step
-                # via define_metric in run_train.py.
                 wandb.log(
                     {
                         **{f"train/{k}": v for k, v in metrics.items()},

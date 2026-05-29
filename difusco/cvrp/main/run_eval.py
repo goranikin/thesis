@@ -8,7 +8,7 @@ uv run python -m difusco.cvrp.main.run_eval \\
 uv run python -m difusco.cvrp.main.run_eval \\
     --checkpoint best_model.pt \\
     --data data/cvrp50-50_128000_pyvrp.txt \\
-    --inference-steps 50 --schedule cosine --max-instances 128
+    --inference-steps 50 --schedule cosine --no-2opt --max-instances 128
 """
 
 import argparse
@@ -71,6 +71,19 @@ def main() -> None:
     parser.add_argument("--sparse-factor", type=int, default=None)
     parser.add_argument("--inference-steps", type=int, default=50)
     parser.add_argument("--schedule", choices=["linear", "cosine"], default="cosine")
+    parser.add_argument(
+        "--no-2opt",
+        dest="use_2opt",
+        action="store_false",
+        help="Disable intra-route 2-opt after greedy decoding.",
+    )
+    parser.set_defaults(use_2opt=True)
+    parser.add_argument(
+        "--max-2opt-iterations",
+        type=int,
+        default=100,
+        help="Max 2-opt passes per route when 2-opt is enabled.",
+    )
     parser.add_argument("--max-instances", type=int, default=-1)
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--seed", type=int, default=42)
@@ -120,7 +133,8 @@ def main() -> None:
         logger.info(f"  Reported best gap (val): {ckpt['best_gap']:.4f}%")
 
     logger.info(
-        f"\nInference: steps={args.inference_steps}, schedule={args.schedule}"
+        f"\nInference: steps={args.inference_steps}, schedule={args.schedule}, "
+        f"2-opt={args.use_2opt} (max_iter={args.max_2opt_iterations})"
     )
 
     trainer = Trainer(model, device=device)
@@ -135,6 +149,8 @@ def main() -> None:
         loader,
         num_inference_steps=args.inference_steps,
         schedule_type=args.schedule,
+        use_2opt=args.use_2opt,
+        max_2opt_iterations=args.max_2opt_iterations,
         max_instances=args.max_instances,
     )
     elapsed = time.time() - t0

@@ -46,6 +46,8 @@ class DataConfig(Schema):
 class InferenceConfig(Schema):
     inference_steps: int = 50
     schedule: str = "cosine"
+    use_2opt: bool = True
+    max_2opt_iterations: int = 100
     eval_subset: int = 500
 
 

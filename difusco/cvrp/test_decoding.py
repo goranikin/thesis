@@ -2,8 +2,12 @@ import torch
 
 from difusco.cvrp.decoding import (
     compute_overcapacity_violation,
+    compute_route_length,
+    decode_cvrp,
     greedy_decode_cvrp,
     routes_to_canonical,
+    two_opt_cvrp,
+    two_opt_route,
 )
 
 
@@ -94,5 +98,91 @@ def test_greedy_decode_cvrp_end_to_end_example() -> None:
     assert isinstance(canonical, str)
 
 
+def test_two_opt_route_improves_zigzag() -> None:
+    """A deliberately bad order should shorten after 2-opt."""
+    node_coords = torch.tensor(
+        [
+            [0.0, 0.0],  # depot
+            [1.0, 0.0],
+            [2.0, 0.0],
+            [1.0, 1.0],
+        ],
+        dtype=torch.float32,
+    )
+    bad_route = [1, 3, 2]  # detour via customer 3 before customer 2
+    improved = two_opt_route(bad_route, node_coords, max_iterations=50)
+    assert improved == [1, 2, 3]
+    assert compute_route_length([improved], node_coords) < compute_route_length(
+        [bad_route], node_coords
+    )
+
+
+def test_two_opt_cvrp_preserves_customers_and_capacity() -> None:
+    node_coords = torch.tensor(
+        [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [2.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 2.0],
+        ],
+        dtype=torch.float32,
+    )
+    demands = torch.tensor([0, 4, 5, 6, 3], dtype=torch.int64)
+    capacity = 12
+    routes = [[3, 1], [4, 2]]
+    optimized = two_opt_cvrp(routes, node_coords, max_iterations=50)
+
+    assert sorted(c for r in optimized for c in r) == sorted(
+        c for r in routes for c in r
+    )
+    violating, overshoot = compute_overcapacity_violation(
+        optimized, demands, capacity
+    )
+    assert violating == 0
+    assert overshoot == 0
+
+
+def test_decode_cvrp_with_2opt_matches_greedy_then_refine() -> None:
+    node_coords = torch.tensor(
+        [
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 2.0],
+            [0.0, 3.0],
+        ],
+        dtype=torch.float32,
+    )
+    demands = torch.tensor([0, 1, 1, 1], dtype=torch.int64)
+    capacity = 10
+    edges = [(0, 1), (1, 0), (1, 2), (2, 1), (2, 3), (3, 2), (3, 0), (0, 3)]
+    edge_index = torch.tensor(edges, dtype=torch.int64).t().contiguous()
+    heatmap = torch.ones(edge_index.shape[1], dtype=torch.float32)
+
+    greedy_routes = greedy_decode_cvrp(
+        heatmap, edge_index, node_coords, demands, capacity
+    )
+    decoded = decode_cvrp(
+        heatmap,
+        edge_index,
+        node_coords,
+        demands,
+        capacity,
+        use_2opt=True,
+        max_2opt_iterations=50,
+    )
+    refined = two_opt_cvrp(greedy_routes, node_coords, max_iterations=50)
+
+    assert sorted(c for r in decoded for c in r) == sorted(
+        c for r in refined for c in r
+    )
+    assert compute_route_length(decoded, node_coords) <= compute_route_length(
+        greedy_routes, node_coords
+    ) + 1e-6
+
+
 if __name__ == "__main__":
     test_greedy_decode_cvrp_end_to_end_example()
+    test_two_opt_route_improves_zigzag()
+    test_two_opt_cvrp_preserves_customers_and_capacity()
+    test_decode_cvrp_with_2opt_matches_greedy_then_refine()

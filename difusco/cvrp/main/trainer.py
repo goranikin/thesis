@@ -29,7 +29,7 @@ import wandb
 from difusco.cvrp.decoding import (
     compute_overcapacity_violation,
     compute_route_length,
-    greedy_decode_cvrp,
+    decode_cvrp,
 )
 from difusco.cvrp.models.model import DifuscoCVRP
 from difusco.cvrp.types import EpochRecord, FitResult, RunConfig
@@ -108,6 +108,8 @@ class Trainer:
         val_loader: DataLoader,
         num_inference_steps: int = 10,
         schedule_type: str = "cosine",
+        use_2opt: bool = True,
+        max_2opt_iterations: int = 100,
         max_instances: int = -1,
     ) -> tuple[float, float, float, float, float]:
         """
@@ -170,12 +172,14 @@ class Trainer:
                 schedule_type=schedule_type,
             )
 
-            routes = greedy_decode_cvrp(
+            routes = decode_cvrp(
                 heatmap=heatmap,
                 edge_index=edge_index,
                 node_coords=coords,
                 demands=demands,
                 capacity=capacity,
+                use_2opt=use_2opt,
+                max_2opt_iterations=max_2opt_iterations,
             )
 
             pred_length = compute_route_length(routes, coords)
@@ -269,6 +273,8 @@ class Trainer:
                     val_loader,
                     num_inference_steps=inference.inference_steps,
                     schedule_type=inference.schedule,
+                    use_2opt=inference.use_2opt,
+                    max_2opt_iterations=inference.max_2opt_iterations,
                     max_instances=inference.eval_subset,
                 )
                 elapsed = time.time() - t0

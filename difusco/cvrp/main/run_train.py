@@ -87,7 +87,10 @@ def main(hydra_cfg: DictConfig) -> None:
         f"  T={cfg.diffusion.T}, β=[{cfg.diffusion.beta_start}, {cfg.diffusion.beta_end}]"
     )
     logger.info(
-        f"  Inference: {cfg.inference.inference_steps} steps, {cfg.inference.schedule} schedule"
+        f"  Inference: {cfg.inference.inference_steps} steps, "
+        f"{cfg.inference.schedule} schedule, "
+        f"2-opt={cfg.inference.use_2opt} "
+        f"(max_iter={cfg.inference.max_2opt_iterations})"
     )
 
     wandb.init(

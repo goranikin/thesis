@@ -44,7 +44,7 @@ cado:
   save_best_only: true
   ckpt_dir: checkpoints/cado
 
-# caffeinate -dims uv run python -m cado.main.run_train \
+# caffeinate -dims uv run python -m cado.tsp.main.run_train \
 #     cado.pretrained_ckpt="$(ls -td checkpoints/*/best_model.pt | head -1)" \
 #     cado.epochs=200 \
 #     cado.M_train=5 \

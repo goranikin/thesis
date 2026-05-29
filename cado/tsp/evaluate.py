@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from cado.models.model import CADOTSP
+from cado.tsp.models.model import CADOTSP
 from difusco.tsp.decoding import compute_tour_length, greedy_decode_tsp, two_opt
 
 
@@ -27,12 +27,9 @@ def _split_supergraph(
     num_nodes: int,
     max_graphs: int | None = None,
 ) -> list[tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]]:
-    """Split a collated super-graph back into per-instance tensors."""
     full_batch = _graphs_in_batch(node_feat, num_nodes)
     edges_per_graph = edge_index.shape[1] // full_batch
-    batch_size = full_batch
-    if max_graphs is not None:
-        batch_size = min(batch_size, max_graphs)
+    batch_size = full_batch if max_graphs is None else min(full_batch, max_graphs)
     graphs: list[
         tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
     ] = []
@@ -89,20 +86,6 @@ def evaluate(
     max_2opt_iterations: int = 100,
     max_instances: int = -1,
 ) -> tuple[float, float, float]:
-    """
-    Run greedy decoding (+ optional 2-opt) on the val loader and report the
-    mean optimality gap vs. ground-truth Concorde tours.
-
-    Expects `val_loader` to use `collate_tsp` with `batch_size >= 1`. Each
-    batch is denoised as one disconnected super-graph, then split for decode.
-
-    Args:
-        num_nodes: nodes per instance (all graphs in a batch must share this).
-        max_instances: cap on instances evaluated (-1 = all).
-
-    Returns:
-        (avg_pred_length, avg_gt_length, gap_pct)
-    """
     model.eval()
 
     total_pred_length = 0.0
@@ -110,14 +93,11 @@ def evaluate(
     num_instances = 0
 
     dataset_size = len(val_loader.dataset)  # type: ignore
-    if max_instances > 0:
-        total = min(max_instances, dataset_size)
-    else:
-        total = dataset_size
+    total = min(max_instances, dataset_size) if max_instances > 0 else dataset_size
 
     pbar = tqdm(
         val_loader,
-        desc="CADO eval",
+        desc="CADO TSP eval",
         total=(total + val_loader.batch_size - 1) // val_loader.batch_size,  # type: ignore
         leave=False,
         dynamic_ncols=True,

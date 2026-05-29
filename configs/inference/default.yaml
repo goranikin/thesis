@@ -1,4 +1,5 @@
 inference_steps: 50 # M — number of denoising steps actually taken at inference
 schedule: cosine # how to subsample T=1000 training steps into M; "linear" or "cosine"
-use_2opt: true # apply 2-opt refinement after greedy edge decoding
+use_2opt: true # apply 2-opt refinement after greedy edge decoding (TSP tour / CVRP per-route)
+max_2opt_iterations: 100 # local-search passes per tour or per CVRP route
 eval_subset: 500 # cap instances per validation pass; -1 = all

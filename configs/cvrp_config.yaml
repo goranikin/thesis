@@ -9,6 +9,11 @@ defaults:
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
 checkpoint_dir: ./checkpoints
 
+# Validation decode: greedy heatmap edges + optional intra-route 2-opt (see inference group).
+inference:
+  use_2opt: true
+  max_2opt_iterations: 100
+
 wandb:
   project: difusco-cvrp
   mode: online
