@@ -168,7 +168,7 @@ def main(hydra_cfg: DictConfig) -> None:
     wandb.config.update(
         {
             "checkpoint_run": ckpt_dir.name,
-            "checkpoint_dir": str(ckpt_dir),
+            "checkpoint_run_dir": str(ckpt_dir),
             "pretrained_ckpt": str(pretrained_path),
         }
     )
