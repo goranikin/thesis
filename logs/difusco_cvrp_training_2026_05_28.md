@@ -1,144 +1,189 @@
-# Experiment Log
+# Experiment Log (from `exports/`)
 
-## Experiment 6: CVRP-50 Paper Model Supervised Training (Remote)
+> **Superseded** — exports were re-exported from run `myqt6q9i` (2-opt). See [`difusco_cvrp_training_exports_2026_05_29.md`](difusco_cvrp_training_2026_05_29.md).
+
+## Experiment 6: CVRP-50 Paper Model — Supervised Training (Remote)
 
 **Date**: 2026-05-28  
 **wandb run**: [`difusco-cvrp / ch78lr8f`](https://wandb.ai/goranikin-my-project/difusco-cvrp/runs/ch78lr8f) (`cvrp50_h256_L12`)  
-**Goal**: Train the paper-size DIFUSCO model (h256_L12) on CVRP-50 with categorical diffusion on a remote A100, establishing the first supervised-learning baseline before CADO fine-tuning.
+**Goal**: First remote supervised baseline for CVRP-50 with the paper-size DIFUSCO model (h256_L12).
 
-**Data sources**: `exports/run_history_full.csv`, `exports/run_history_train.csv`, `exports/run_history_val.csv` (exported via `wandb/main.py`, gradient columns stripped)
+**Primary data sources** (all metrics below are computed from these files only):
 
-### Background
+| File | Rows | Description |
+|---|---|---|
+| `exports/run_history_full.csv` | 262 | Interleaved train + val + system fields |
+| `exports/run_history_train.csv` | 200 | Rows with `train/global_step` set |
+| `exports/run_history_val.csv` | 11 | Rows with `val/gap_pct` set |
 
-TSP experiments (Exp 3–5) used the small model (h128_L6, ≈0.94M params) and reached ≈4.4% gap after supervised training. This run is the **first CVRP end-to-end training** with the **paper configuration** (h256_L12, ≈7.3M params) on 128k PyVRP-generated instances (`cvrp50-50_128000_pyvrp.txt`). It was launched on VESSL (`vessl_ai/difusco_cvrp_train.json`) with `training=remote`.
+Exported with `wandb/main.py` from run `ch78lr8f`; `gradients/*` and `_timestamp` columns removed.
 
-### Configuration
+### Export columns
+
+| Column | Present on | Meaning |
+|---|---|---|
+| `train/global_step` | train rows | Optimizer step index |
+| `train/loss_step` | train rows | Per-batch diffusion CE loss |
+| `train/loss_epoch` | epoch rows | Mean train loss for the epoch |
+| `train/grad_norm` | train rows | Gradient norm after clipping |
+| `train/lr` | epoch rows | LR after cosine scheduler step |
+| `epoch` | epoch / val rows | Training epoch (1–50) |
+| `val/gap_pct` | val rows | `(pred − gt) / gt × 100` |
+| `val/best_gap_pct` | val rows | Running best gap so far |
+| `val/final_best_gap_pct` | summary | Final best gap (29.98%) |
+| `val/pred_tour_length` | val rows | Mean decoded tour length |
+| `val/gt_tour_length` | val rows | Mean GT tour length (14.306) |
+| `val/num_routes_pred` | val rows | Mean predicted route count |
+| `val/overcapacity_rate` | val rows | Fraction of instances with capacity violations |
+| `_runtime` | all | Wall seconds since run start |
+| `_step` | all | W&B internal log index |
+
+### Configuration (from W&B run config)
 
 | Parameter | Value |
 |---|---|
-| Model | h256_L12 (paper; ≈7.3M params) |
-| Hidden dimension | 256 |
-| AGNN layers | 12 |
-| Problem | CVRP-50 (50 customers + depot) |
-| Diffusion type | Categorical (Bernoulli) |
-| Diffusion steps (T) | 1000 |
-| Beta schedule | linear, 1e-4 → 0.02 |
-| Optimizer | AdamW |
-| Learning rate | 2e-4 (cosine annealing) |
-| Weight decay | 1e-4 |
-| Dropout | 0.0 |
+| Model | h256_L12 (≈7.3M params) |
+| Problem | CVRP-50 |
+| Data | `/mount/data/cvrp50-50_128000_pyvrp.txt` |
+| Train/val split | 0.9 |
 | Epochs | 50 |
 | Batch size | 64 |
-| Training data | `cvrp50-50_128000_pyvrp.txt` (128k instances) |
-| Train/val split | 0.9 (115,200 / 12,800) |
-| `M_eval` (inference steps) | 50 (cosine schedule) |
-| Post-processing (eval) | Greedy multi-route decode |
-| Eval cadence | every 5 epochs (+ epoch 1, epoch 50) |
-| Eval subset | 500 validation instances |
-| Gradient clip | 1.0 |
-| Log interval | every 100 batches |
-| Seed | 42 |
-| Checkpoint dir | `/mount/checkpoints` |
-| W&B project | `difusco-cvrp` |
+| Learning rate | 2e-4 (cosine) |
+| Weight decay | 1e-4 |
+| Diffusion T | 1000 (linear β: 1e-4 → 0.02) |
+| Inference steps | 50 (cosine schedule) |
+| Eval every | 5 epochs |
+| Eval subset | 500 instances |
+| Log interval | 100 batches |
+| Platform | VESSL A100×1 |
 
-### Computing Resources
-
-| Resource | Specification |
-|---|---|
-| Platform | VESSL (`cluster-betelgeuse`) |
-| GPU | 1× NVIDIA A100 (`resourcespec-a100x1`) |
-| Image | `quay.io/vessl-ai/torch:2.3.1-cuda12.1-r5` |
-| Data / checkpoints | VESSL object volume `@ /mount` |
-| Total wall-clock time | **2 h 9 min** (`_runtime` ≈ 7,712 s) |
-
-### Training Values
+### Summary (from exports)
 
 | Metric | Value |
 |---|---|
-| Logged `train/global_step` range | 0 → 16,862 |
-| Batches per epoch (inferred) | ≈337 |
-| Total optimizer steps (inferred) | ≈16,850 (337 × 50) |
-| Train log rows (`train/global_step`) | 200 |
-| `train/loss_step` — first logged | 0.868 |
-| `train/loss_step` — last logged | 0.068 |
-| `train/loss_step` — mean | 0.063 |
-| `train/loss_epoch` — epoch 1 | 0.117 |
-| `train/loss_epoch` — epoch 50 | 0.053 |
-| `train/loss_epoch` — minimum | 0.049 (epoch 49) |
-| `train/grad_norm` — first logged | 10.85 |
-| `train/grad_norm` — last logged | 0.069 |
-| `train/grad_norm` — mean | 0.174 |
-| `train/lr` — start / end | 2.0e-4 → 0 |
-
-Denosing cross-entropy decreases steadily (epoch loss 0.117 → 0.053), and per-step gradients shrink from an initial spike (10.85) to O(0.1). **Training loss alone does not indicate useful routing quality on CVRP** — see validation below.
-
-### Eval Values
-
-| Metric | Value |
-|---|---|
-| **Best validation gap** | **29.98%** (epochs 1 and 5; checkpoint saved here) |
+| Wall-clock | **2 h 9 min** (`_runtime` max = 7,712 s) |
+| Logged train steps | 0 → 16,862 (200 log points) |
+| `train/loss_epoch` (ep 1 → 50) | 0.117 → 0.053 (min **0.049** @ ep 49) |
+| `train/loss_step` (first → last log) | 0.868 → 0.068 |
+| `train/grad_norm` (first → last log) | 10.85 → 0.069 |
+| **Best `val/gap_pct`** | **29.98%** (epochs 1 & 5) |
 | `val/final_best_gap_pct` | 29.98% |
-| Final epoch gap (epoch 50) | 33.66% |
-| Mean gap (all 11 evals) | 33.72% (std 3.10%) |
-| GT tour length (constant) | 14.306 |
-| Pred tour length — best eval (epoch 5) | 18.594 |
-| Pred tour length — final (epoch 50) | 19.120 |
-| `val/overcapacity_rate` | **0%** on every eval |
-| Predicted routes (epoch 1 / 50) | ≈16.1 / 14.9 (GT route count ≈ implicit via labels) |
+| Final `val/gap_pct` (epoch 50) | 33.66% |
+| `val/overcapacity_rate` | 0% on all 11 evals |
+| Pred tour length range | 18.59 – 19.99 |
+| Pred route count range | 14.66 – 16.06 |
 
-The model satisfies capacity constraints (no overcapacity violations) but produces tours **≈30% longer** than PyVRP ground truth. The best gap is reached at **epoch 5** and never improves; later epochs drift to 33–40% gap despite lower training loss.
+### Per-epoch training (`train/loss_epoch`, `train/lr`)
 
-### Per-Epoch Validation Log
+Source: `run_history_full.csv` (50 rows).
 
-Full curve: 11 eval points in `exports/run_history_val.csv`.
+| Epoch | Loss | LR |
+|---|---|---|
+| 1 | 0.1170 | 2.00e-04 |
+| 2 | 0.0928 | 1.99e-04 |
+| 3 | 0.0845 | 1.98e-04 |
+| 4 | 0.0787 | 1.97e-04 |
+| 5 | 0.0761 | 1.95e-04 |
+| 6 | 0.0732 | 1.93e-04 |
+| 7 | 0.0700 | 1.90e-04 |
+| 8 | 0.0688 | 1.88e-04 |
+| 9 | 0.0641 | 1.84e-04 |
+| 10 | 0.0650 | 1.81e-04 |
+| 11 | 0.0634 | 1.77e-04 |
+| 12 | 0.0658 | 1.73e-04 |
+| 13 | 0.0615 | 1.68e-04 |
+| 14 | 0.0602 | 1.64e-04 |
+| 15 | 0.0605 | 1.59e-04 |
+| 16 | 0.0615 | 1.54e-04 |
+| 17 | 0.0592 | 1.48e-04 |
+| 18 | 0.0607 | 1.43e-04 |
+| 19 | 0.0577 | 1.37e-04 |
+| 20 | 0.0570 | 1.31e-04 |
+| 21 | 0.0574 | 1.25e-04 |
+| 22 | 0.0585 | 1.19e-04 |
+| 23 | 0.0568 | 1.13e-04 |
+| 24 | 0.0562 | 1.06e-04 |
+| 25 | 0.0563 | 1.00e-04 |
+| 26 | 0.0580 | 9.37e-05 |
+| 27 | 0.0557 | 8.75e-05 |
+| 28 | 0.0571 | 8.13e-05 |
+| 29 | 0.0533 | 7.51e-05 |
+| 30 | 0.0548 | 6.91e-05 |
+| 31 | 0.0543 | 6.32e-05 |
+| 32 | 0.0548 | 5.74e-05 |
+| 33 | 0.0546 | 5.18e-05 |
+| 34 | 0.0549 | 4.64e-05 |
+| 35 | 0.0535 | 4.12e-05 |
+| 36 | 0.0526 | 3.63e-05 |
+| 37 | 0.0538 | 3.15e-05 |
+| 38 | 0.0515 | 2.71e-05 |
+| 39 | 0.0529 | 2.29e-05 |
+| 40 | 0.0543 | 1.91e-05 |
+| 41 | 0.0534 | 1.56e-05 |
+| 42 | 0.0511 | 1.24e-05 |
+| 43 | 0.0537 | 9.52e-06 |
+| 44 | 0.0530 | 7.02e-06 |
+| 45 | 0.0518 | 4.89e-06 |
+| 46 | 0.0507 | 3.14e-06 |
+| 47 | 0.0515 | 1.77e-06 |
+| 48 | 0.0551 | 7.89e-07 |
+| 49 | 0.0494 | 1.97e-07 |
+| 50 | 0.0528 | 0.00e+00 |
 
-| Epoch | Pred Length | GT Length | Gap | Routes (pred) | Overcap | Notes |
+### Per-epoch validation
+
+Source: `run_history_val.csv` (11 rows; eval at epochs 1, 5, 10, …, 50).
+
+| Epoch | Pred len | GT len | Gap | Routes | Overcap | Best so far |
 |---|---|---|---|---|---|---|
-| 1 | 18.595 | 14.306 | 29.98% | 16.06 | 0% | **best** (tied) |
-| 5 | 18.594 | 14.306 | 29.98% | 14.74 | 0% | **best** (tied) |
-| 10 | 18.764 | 14.306 | 31.17% | 14.82 | 0% | |
-| 15 | 19.552 | 14.306 | 36.68% | 15.48 | 0% | |
-| 20 | 18.989 | 14.306 | 32.74% | 14.66 | 0% | |
-| 25 | 19.683 | 14.306 | 37.59% | 15.28 | 0% | |
-| 30 | 19.988 | 14.306 | 39.72% | 15.76 | 0% | worst |
-| 35 | 19.085 | 14.306 | 33.41% | 14.89 | 0% | |
-| 40 | 19.033 | 14.306 | 33.04% | 14.73 | 0% | |
-| 45 | 19.023 | 14.306 | 32.97% | 14.83 | 0% | |
-| 50 | 19.120 | 14.306 | 33.66% | 14.87 | 0% | final |
+| 1 | 18.595 | 14.306 | 29.98% | 16.06 | 0% | 29.98% |
+| 5 | 18.594 | 14.306 | 29.98% | 14.74 | 0% | 29.98% |
+| 10 | 18.764 | 14.306 | 31.17% | 14.82 | 0% | 29.98% |
+| 15 | 19.552 | 14.306 | 36.68% | 15.48 | 0% | 29.98% |
+| 20 | 18.989 | 14.306 | 32.74% | 14.66 | 0% | 29.98% |
+| 25 | 19.683 | 14.306 | 37.59% | 15.28 | 0% | 29.98% |
+| 30 | 19.988 | 14.306 | 39.72% | 15.76 | 0% | 29.98% |
+| 35 | 19.085 | 14.306 | 33.41% | 14.89 | 0% | 29.98% |
+| 40 | 19.033 | 14.306 | 33.04% | 14.73 | 0% | 29.98% |
+| 45 | 19.023 | 14.306 | 32.97% | 14.83 | 0% | 29.98% |
+| 50 | 19.120 | 14.306 | 33.66% | 14.87 | 0% | 29.98% |
 
-### Training Dynamics
+Validation statistics (11 evals): mean gap **33.72%**, std **3.10%**, worst **39.72%** (epoch 30).
 
-- **Loss–gap decoupling**: `train/loss_epoch` falls by more than 50% while `val/gap_pct` worsens after epoch 5. The diffusion objective is optimizing edge classification without translating into shorter decoded routes.
-- **Early best, then regression**: `val/best_gap_pct` flatlines at 29.98% from epoch 5 onward; the checkpoint selector correctly freezes the epoch-5 weights as “best,” but that gap is still far from useful.
-- **Feasible but long routes**: `val/overcapacity_rate = 0` throughout — greedy decoding respects capacity, but total tour length stays ~4.3 units above GT on average (≈30% gap).
-- **Route-count mismatch early**: epoch 1 predicts ≈16 routes vs ≈15 later; excess routes correlate with the highest pred lengths.
-- **Remote throughput**: ≈2.1 h for 50 epochs on A100 is reasonable for a 7.3M-param model with 500-instance validation every 5 epochs and `wandb.watch` gradient logging enabled.
+### Training dynamics
+
+- **Loss improves, gap does not**: Epoch loss falls ~55% while validation gap is flat at ~30% early then drifts to 33–40%. The denoising objective is not yet aligned with decoded tour quality.
+- **Best checkpoint at epoch 5**: `val/best_gap_pct` never beats 29.98% after epoch 5; later training does not help routing.
+- **Feasible but long tours**: Zero overcapacity violations; predicted lengths stay ~4.3 above GT (~30% gap).
+- **Route-count spike at epoch 1**: 16.06 predicted routes vs ~14.7–15.8 later — extra routes correlate with the tied-best but still poor gap at epoch 1.
+- **Step budget**: Max `global_step` = 16,862 implies ≈337 batches/epoch, not the ≈1,800 expected for 115k train samples at batch 64. Worth confirming the mounted dataset size on VESSL.
 
 ### Analysis
 
-This run establishes that the **CVRP training pipeline runs correctly on remote infrastructure** (data mount, VESSL job, W&B logging, checkpointing) but does **not** yet produce a competitive heatmap solver. A ≈30% optimality gap after 50 epochs contrasts sharply with TSP paper-model expectations (sub-5% after comparable SL training).
+The export files show a **completed 50-epoch remote run** with healthy training-loss convergence but **poor routing performance** (~30% optimality gap). Compared to TSP supervised baselines (~4.4% with h128_L6), CVRP decoding from heatmaps is substantially harder: greedy multi-route construction (`difusco/cvrp/decoding.py`) may amplify edge-probability errors, and cross-entropy on diffused edges may not directly optimize tour length under capacity.
 
-Likely contributing factors:
+The checkpoint saved at epoch 5 (best gap 29.98%) is the only artifact worth inspecting before further training changes.
 
-1. **Harder decode than TSP**: Multi-route greedy decoding from a heatmap is more brittle than a single Hamiltonian tour; small edge-probability errors compound into longer tours.
-2. **Objective mismatch**: Cross-entropy on diffused edge labels may not align with total route length under capacity constraints.
-3. **Possible data / label semantics**: GT length uses labeled depot edges (`edge_dist` sum / 2); pred length uses decoded routes — any systematic mismatch would inflate gap (worth verifying on a single instance).
-4. **Insufficient or mis-tuned training budget**: Only ≈337 batches/epoch were logged (16.9k total steps vs ≈90k expected if the full 115k train split were consumed at batch 64). Confirm the mounted dataset size matches 128k instances.
+### Comparison
 
-### Comparison to TSP Baselines
+| | TSP SL (Exp 3) | CVRP SL (this run) |
+|---|---|---|
+| Model | h128_L6 (0.94M) | h256_L12 (7.3M) |
+| Best val gap | 4.46% | **29.98%** |
+| Wall time | 17.8 h (MPS) | 2.1 h (A100) |
 
-| Metric | TSP h128_L6 (Exp 3) | TSP CADO target | CVRP h256_L12 (this) |
-|---|---|---|---|
-| Best validation gap | 4.46% | ≈4% SL → <4% RL | **29.98%** |
-| Model size | 0.94M | 0.94M (CADO) | 7.3M |
-| Problem | TSP-50 | TSP-50 | CVRP-50 |
-| Eval post-process | Greedy + 2-opt | Greedy + 2-opt | Greedy multi-route |
-| Wall time | 17.8 h (MPS) | — | 2.1 h (A100) |
+### Next steps
 
-### Next Steps
+1. Confirm dataset size and batches/epoch on the remote mount.
+2. Sanity-check `greedy_decode_cvrp` + length computation on a single instance (heatmap vs GT edges).
+3. Re-run validation locally with `use_2opt=true` (now in `configs/inference/default.yaml`) to see if gap drops without retraining.
+4. Short `model=small` local smoke test before another full remote job.
+5. Defer CADO CVRP until SL gap is in a reasonable range (<10%).
 
-1. **Verify dataset and loader size** on `/mount/data` — confirm 128k instances and ~1,800 batches/epoch at `batch_size=64`.
-2. **Sanity-check decoding** on one instance (heatmap visualization, route count, length vs GT decomposition).
-3. **Disable or reduce `wandb.watch` gradient logging** for production runs (mirrors TSP Exp 3 wall-time lesson).
-4. **Short local smoke test** (`model=small`, `training=local`) to compare gap scale before another 7M-param remote job.
-5. **Only after SL gap < ~10%**: queue CADO CVRP fine-tuning (`cado_cvrp_config.yaml`) from the best checkpoint.
+### Reproducing the exports
+
+```bash
+uv run python wandb/main.py
+```
+
+Writes the three CSVs under `exports/` from `RUN_PATH` in `wandb/main.py`.

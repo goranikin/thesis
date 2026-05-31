@@ -7,3 +7,4 @@ defaults:
   - wandb: default
 
 data_path: ./data/tsp50_128000_concorde.txt
+checkpoint_dir: ./checkpoints

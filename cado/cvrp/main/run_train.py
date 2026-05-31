@@ -3,14 +3,14 @@ CADO-CVRP training entrypoint.
 
 Run:
     uv run python -m cado.cvrp.main.run_train \\
-        cado.pretrained_ckpt=checkpoints/best_model.pt \\
         cado.algorithm=reinforce
+
+Checkpoints are saved under
+``{checkpoint_dir}/cado_cvrp_YYYYMMDD_HHMMSS/best_model.pt``.
 """
 
 import logging
-import os
 import random
-from datetime import datetime
 from pathlib import Path
 
 import hydra
@@ -27,7 +27,7 @@ from cado.cvrp.models.model import CADOCVRP
 from cado.cvrp.types import CADOCVRPRunConfig
 from cado.models.lora import apply_hybrid_ft, trainable_parameter_summary
 from difusco.cvrp.dataset import CVRPDataset, collate_cvrp
-from utils import select_device
+from utils import CADO_CVRP, best_model_path, resolve_pretrained, run_dir, select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -74,10 +74,7 @@ def _build_loaders(cfg: CADOCVRPRunConfig) -> tuple[DataLoader, DataLoader]:
     return train_loader, val_loader
 
 
-def _load_pretrained(model: CADOCVRP, ckpt_path: str | Path) -> dict:
-    ckpt_path = Path(ckpt_path)
-    if not ckpt_path.is_absolute():
-        ckpt_path = Path(get_original_cwd()) / ckpt_path
+def _load_pretrained(model: CADOCVRP, ckpt_path: Path) -> dict:
     if not ckpt_path.exists():
         raise FileNotFoundError(
             f"Pretrained checkpoint not found: {ckpt_path}. "
@@ -128,7 +125,14 @@ def main(hydra_cfg: DictConfig) -> None:
         beta_end=cfg.diffusion.beta_end,
         dropout=0.0,
     )
-    _load_pretrained(model=model, ckpt_path=cfg.cado.pretrained_ckpt)
+    project_root = Path(get_original_cwd())
+    pretrained_path = resolve_pretrained(
+        cfg.checkpoint_dir,
+        cfg.cado.pretrained_tag,
+        cfg.cado.pretrained_ckpt,
+        cwd=project_root,
+    )
+    _load_pretrained(model=model, ckpt_path=pretrained_path)
     apply_hybrid_ft(
         model=model,
         lora_rank=cfg.cado.lora_rank,
@@ -159,13 +163,15 @@ def main(hydra_cfg: DictConfig) -> None:
     )
     _setup_wandb_metrics()
 
-    ckpt_dir = (
-        Path(os.getcwd())
-        / cfg.cado.ckpt_dir
-        / datetime.now().strftime("%Y%m%d_%H%M%S")
+    ckpt_dir = run_dir(cfg.checkpoint_dir, CADO_CVRP, cwd=project_root, mkdir=True)
+    ckpt_path = best_model_path(ckpt_dir)
+    wandb.config.update(
+        {
+            "checkpoint_run": ckpt_dir.name,
+            "checkpoint_dir": str(ckpt_dir),
+            "pretrained_ckpt": str(pretrained_path),
+        }
     )
-    ckpt_dir.mkdir(parents=True, exist_ok=True)
-    ckpt_path = ckpt_dir / "best_model.pt"
     logger.info(f"Checkpoints: {ckpt_dir}")
 
     logger.info("=" * 60)
@@ -205,6 +211,8 @@ def main(hydra_cfg: DictConfig) -> None:
     logger.info("=" * 60)
 
     wandb.summary["val/best_gap_pct"] = best_gap
+    wandb.summary["checkpoint_run"] = ckpt_dir.name
+    wandb.summary["checkpoint_best_path"] = str(ckpt_path)
     wandb.finish()
 
 

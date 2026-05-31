@@ -15,6 +15,7 @@ class CADOTSPRunConfig(Schema):
     """Top-level config for ``cado.tsp.main.run_train``."""
 
     data_path: str = "./data/tsp50_128000_concorde.txt"
+    checkpoint_dir: str = "./checkpoints"
     seed: int = 42
     model: ModelConfig = Field(default_factory=ModelConfig)
     diffusion: DiffusionConfig = Field(default_factory=DiffusionConfig)

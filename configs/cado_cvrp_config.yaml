@@ -6,14 +6,16 @@ defaults:
   - _self_
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
+checkpoint_dir: ./checkpoints
 seed: 42
 
 wandb:
   project: cado-cvrp
 
 cado:
-  pretrained_ckpt: checkpoints/best_model.pt
-  ckpt_dir: checkpoints/cado_cvrp
+  # null = latest checkpoints/difusco_cvrp_*/best_model.pt
+  pretrained_ckpt: null
+  pretrained_tag: difusco_cvrp
 
   algorithm: reinforce
   reward_mode: LCR
@@ -41,7 +43,9 @@ cado:
   eval_every: 10
   eval_subset: 100
 
+# Saves to checkpoints/cado_cvrp_YYYYMMDD_HHMMSS/best_model.pt
+#
 # uv run python -m cado.cvrp.main.run_train \\
-#     cado.pretrained_ckpt="$(ls -td checkpoints/*/best_model.pt | head -1)" \\
+#     cado.pretrained_ckpt=checkpoints/difusco_cvrp_20260528_110854/best_model.pt \\
 #     cado.epochs=200 \\
 #     wandb.run_name=cado_cvrp_pilot

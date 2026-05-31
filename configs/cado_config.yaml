@@ -6,10 +6,13 @@ defaults:
   - _self_
 
 data_path: ./data/tsp50_128000_concorde.txt
+checkpoint_dir: ./checkpoints
 seed: 42
 
 cado:
-  pretrained_ckpt: checkpoints/20260524_234510/best_model.pt
+  # null = latest checkpoints/difusco_tsp_*/best_model.pt
+  pretrained_ckpt: null
+  pretrained_tag: difusco_tsp
 
   algorithm: reinforce # one of: reinforce, ppo  (paper: reinforce)
   reward_mode: SR # one of: LCR, SR  (paper recommends LCR)
@@ -42,12 +45,10 @@ cado:
   eval_batch_size: 16
 
   save_best_only: true
-  ckpt_dir: checkpoints/cado
 
-# caffeinate -dims uv run python -m cado.tsp.main.run_train \
-#     cado.pretrained_ckpt="$(ls -td checkpoints/*/best_model.pt | head -1)" \
-#     cado.epochs=200 \
-#     cado.M_train=5 \
-#     cado.samples_per_epoch=128 \
-#     cado.eval_every=10 \
-#     wandb.run_name=cado_pilot
+# Saves to checkpoints/cado_tsp_YYYYMMDD_HHMMSS/best_model.pt
+#
+# uv run python -m cado.tsp.main.run_train \\
+#     cado.pretrained_ckpt=checkpoints/difusco_tsp_20260524_234510/best_model.pt \\
+#     cado.epochs=200 \\
+#     wandb.run_name=cado_tsp_pilot

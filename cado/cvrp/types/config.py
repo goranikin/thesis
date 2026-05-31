@@ -15,6 +15,7 @@ class CADOCVRPRunConfig(Schema):
     """Top-level config for ``cado.cvrp.main.run_train``."""
 
     data_path: str = "./data/cvrp50-50_128000_pyvrp.txt"
+    checkpoint_dir: str = "./checkpoints"
     seed: int = 42
     model: ModelConfig = Field(default_factory=ModelConfig)
     diffusion: DiffusionConfig = Field(default_factory=DiffusionConfig)

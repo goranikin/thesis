@@ -7,6 +7,7 @@ defaults:
   - _self_
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
+# Run dirs: checkpoints/difusco_cvrp_YYYYMMDD_HHMMSS/
 checkpoint_dir: ./checkpoints
 
 # Validation decode: greedy heatmap edges + optional intra-route 2-opt (see inference group).

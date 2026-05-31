@@ -1,10 +1,9 @@
 import logging
-import os
-from datetime import datetime
 from pathlib import Path
 
 import hydra
 import torch
+from hydra.utils import get_original_cwd
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader, random_split
 
@@ -14,12 +13,12 @@ from difusco.tsp.main.trainer import Trainer
 from difusco.tsp.models.model import DifuscoTSP
 from difusco.tsp.types import RunConfig
 from difusco.tsp.types.training import FitResult
-from utils import select_device
+from utils import DIFUSCO_TSP, best_model_path, last_model_path, run_dir, select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-_CONFIG_DIR = Path(__file__).resolve().parents[2] / "configs"
+_CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
 
 
 @hydra.main(
@@ -120,18 +119,22 @@ def main(hydra_cfg: DictConfig) -> None:
     logger.info(f"  Training for {cfg.training.epochs} epochs")
     logger.info("=" * 60)
 
-    ckpt_dir = (
-        Path(os.getcwd()) / "checkpoints" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    project_root = Path(get_original_cwd())
+    ckpt_dir = run_dir(cfg.checkpoint_dir, DIFUSCO_TSP, cwd=project_root, mkdir=True)
+    wandb.config.update(
+        {
+            "checkpoint_run": ckpt_dir.name,
+            "checkpoint_dir": str(ckpt_dir),
+        }
     )
-    ckpt_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"  Checkpoints: {ckpt_dir}")
 
     result: FitResult = trainer.fit(
         config=cfg,
         train_loader=train_loader,
         val_loader=val_loader,
-        best_checkpoint_path=ckpt_dir / "best_model.pt",
-        last_checkpoint_path=ckpt_dir / "last_model.pt",
+        best_checkpoint_path=best_model_path(ckpt_dir),
+        last_checkpoint_path=last_model_path(ckpt_dir),
     )
 
     logger.info(f"\n{'=' * 60}")
@@ -147,6 +150,8 @@ def main(hydra_cfg: DictConfig) -> None:
         }
     )
     wandb.summary["val/final_best_gap_pct"] = result.best_gap
+    wandb.summary["checkpoint_run"] = ckpt_dir.name
+    wandb.summary["checkpoint_best_path"] = str(best_model_path(ckpt_dir))
     wandb.finish()
 
 

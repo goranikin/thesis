@@ -10,7 +10,9 @@ from difusco.tsp.types.base import Schema
 class CADOConfig(Schema):
     """RL fine-tuning hyperparameters; used by both problem packages."""
 
-    pretrained_ckpt: str = "checkpoints/best_model.pt"
+    # Explicit path to best_model.pt; if null, load latest {pretrained_tag}_* run.
+    pretrained_ckpt: str | None = None
+    pretrained_tag: str = "difusco_tsp"
     algorithm: Literal["reinforce", "ppo"] = "reinforce"
     reward_mode: Literal["LCR", "SR"] = "LCR"
     use_2opt_in_reward: bool = False
@@ -40,4 +42,3 @@ class CADOConfig(Schema):
     eval_batch_size: int = 16
 
     save_best_only: bool = True
-    ckpt_dir: str = "checkpoints/cado"
