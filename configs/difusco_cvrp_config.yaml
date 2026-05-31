@@ -12,10 +12,17 @@ wandb:
   run_name: null
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
-# Run dirs: checkpoints/difusco_cvrp_YYYYMMDD_HHMMSS/
 checkpoint_dir: ./checkpoints
+checkpoint_tag: difusco_cvrp
 
-# Validation decode: greedy heatmap edges + optional intra-route 2-opt (see inference group).
+# Validation decode: greedy heatmap edges + optional intra-route 2-opt.
 inference:
   use_2opt: true
   max_2opt_iterations: 100
+
+# Saves to checkpoints/difusco_cvrp_YYYYMMDD_HHMMSS/{best,last}_model.pt
+#
+# uv run python -m difusco.cvrp.main.run_train \\
+#     training=remote \\
+#     checkpoint_dir=/mount/checkpoints \\
+#     inference.use_2opt=true

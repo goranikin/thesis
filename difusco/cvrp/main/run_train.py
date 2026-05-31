@@ -20,20 +20,11 @@ from difusco.cvrp.main.trainer import Trainer
 from difusco.cvrp.models.model import DifuscoCVRP
 from difusco.cvrp.types import RunConfig
 from difusco.cvrp.types.training import FitResult
-from utils import (
-    DIFUSCO_CVRP,
-    best_model_path,
-    last_model_path,
-    run_dir,
-    select_device,
-)
+from utils import best_model_path, last_model_path, run_dir, select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
-# Reuse the same configs/ directory used by the TSP runner so model.yaml,
-# diffusion.yaml etc. are shared. A dedicated cvrp_config.yaml in configs/
-# can override defaults if needed.
 _CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
 
 
@@ -137,11 +128,14 @@ def main(hydra_cfg: DictConfig) -> None:
     logger.info("=" * 60)
 
     project_root = Path(get_original_cwd())
-    ckpt_dir = run_dir(cfg.checkpoint_dir, DIFUSCO_CVRP, cwd=project_root, mkdir=True)
+    ckpt_dir = run_dir(
+        cfg.checkpoint_dir, cfg.checkpoint_tag, cwd=project_root, mkdir=True
+    )
     wandb.config.update(
         {
             "checkpoint_run": ckpt_dir.name,
             "checkpoint_dir": str(ckpt_dir),
+            "checkpoint_tag": cfg.checkpoint_tag,
         }
     )
     logger.info(f"  Checkpoints: {ckpt_dir}")

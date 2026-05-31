@@ -4,6 +4,7 @@ defaults:
   - diffusion: categorical
   - training: default
   - inference: default
+  - _self_
 
 wandb:
   project: difusco-tsp
@@ -12,3 +13,10 @@ wandb:
 
 data_path: ./data/tsp50_128000_concorde.txt
 checkpoint_dir: ./checkpoints
+checkpoint_tag: difusco_tsp
+
+# Saves to checkpoints/difusco_tsp_YYYYMMDD_HHMMSS/{best,last}_model.pt
+#
+# uv run python -m difusco.tsp.main.run_train \\
+#     training=remote \\
+#     checkpoint_dir=/mount/checkpoints

@@ -50,6 +50,7 @@ class WandbConfig(Schema):
 class RunConfig(Schema):
     data_path: str = "./data/tsp50_128000_concorde.txt"
     checkpoint_dir: str = "./checkpoints"
+    checkpoint_tag: str = "difusco_tsp"
     model: ModelConfig = Field(default_factory=ModelConfig)
     diffusion: DiffusionConfig = Field(default_factory=DiffusionConfig)
     training: TrainingConfig = Field(default_factory=TrainingConfig)

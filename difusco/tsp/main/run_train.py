@@ -13,7 +13,7 @@ from difusco.tsp.main.trainer import Trainer
 from difusco.tsp.models.model import DifuscoTSP
 from difusco.tsp.types import RunConfig
 from difusco.tsp.types.training import FitResult
-from utils import DIFUSCO_TSP, best_model_path, last_model_path, run_dir, select_device
+from utils import best_model_path, last_model_path, run_dir, select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -120,11 +120,14 @@ def main(hydra_cfg: DictConfig) -> None:
     logger.info("=" * 60)
 
     project_root = Path(get_original_cwd())
-    ckpt_dir = run_dir(cfg.checkpoint_dir, DIFUSCO_TSP, cwd=project_root, mkdir=True)
+    ckpt_dir = run_dir(
+        cfg.checkpoint_dir, cfg.checkpoint_tag, cwd=project_root, mkdir=True
+    )
     wandb.config.update(
         {
             "checkpoint_run": ckpt_dir.name,
             "checkpoint_dir": str(ckpt_dir),
+            "checkpoint_tag": cfg.checkpoint_tag,
         }
     )
     logger.info(f"  Checkpoints: {ckpt_dir}")
@@ -155,6 +158,6 @@ def main(hydra_cfg: DictConfig) -> None:
     wandb.finish()
 
 
-# uv run python -m difusco.main.run_train data_path=data/tsp50_128000_concorde.txt model=small
+# uv run python -m difusco.tsp.main.run_train data_path=data/tsp50_128000_concorde.txt model=small
 if __name__ == "__main__":
     main()
