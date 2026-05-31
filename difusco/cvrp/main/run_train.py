@@ -40,7 +40,7 @@ _CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
 @hydra.main(
     version_base=None,
     config_path=str(_CONFIG_DIR),
-    config_name="cvrp_config",
+    config_name="difusco_cvrp_config",
 )
 def main(hydra_cfg: DictConfig) -> None:
     cfg: RunConfig = RunConfig.from_hydra(hydra_cfg)

@@ -104,7 +104,7 @@ def _setup_wandb_metrics() -> None:
 @hydra.main(
     version_base=None,
     config_path=str(_CONFIG_DIR),
-    config_name="cado_config",
+    config_name="cado_tsp_config",
 )
 def main(hydra_cfg: DictConfig) -> None:
     cfg: CADOTSPRunConfig = CADOTSPRunConfig.from_hydra(hydra_cfg)

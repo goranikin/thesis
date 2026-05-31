@@ -2,15 +2,16 @@ defaults:
   - data: cvrp50
   - model: paper
   - diffusion: categorical
-  - wandb: default
   - _self_
+
+wandb:
+  project: cado-cvrp
+  mode: online
+  run_name: null
 
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
 checkpoint_dir: ./checkpoints
 seed: 42
-
-wandb:
-  project: cado-cvrp
 
 cado:
   # null = latest checkpoints/difusco_cvrp_*/best_model.pt

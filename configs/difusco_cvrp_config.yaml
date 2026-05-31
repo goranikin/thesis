@@ -6,6 +6,11 @@ defaults:
   - inference: default
   - _self_
 
+wandb:
+  project: difusco-cvrp
+  mode: online
+  run_name: null
+
 data_path: ./data/cvrp50-50_128000_pyvrp.txt
 # Run dirs: checkpoints/difusco_cvrp_YYYYMMDD_HHMMSS/
 checkpoint_dir: ./checkpoints
@@ -14,8 +19,3 @@ checkpoint_dir: ./checkpoints
 inference:
   use_2opt: true
   max_2opt_iterations: 100
-
-wandb:
-  project: difusco-cvrp
-  mode: online
-  run_name: null

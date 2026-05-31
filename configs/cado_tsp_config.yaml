@@ -2,8 +2,12 @@ defaults:
   - data: tsp50
   - model: small
   - diffusion: categorical
-  - wandb: default
   - _self_
+
+wandb:
+  project: cado-tsp
+  mode: online
+  run_name: null
 
 data_path: ./data/tsp50_128000_concorde.txt
 checkpoint_dir: ./checkpoints

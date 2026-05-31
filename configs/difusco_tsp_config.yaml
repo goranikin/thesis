@@ -4,7 +4,11 @@ defaults:
   - diffusion: categorical
   - training: default
   - inference: default
-  - wandb: default
+
+wandb:
+  project: difusco-tsp
+  mode: online
+  run_name: null
 
 data_path: ./data/tsp50_128000_concorde.txt
 checkpoint_dir: ./checkpoints
