@@ -1,0 +1,61 @@
+% main.tex — entry point for the thesis
+%
+% BUILD (from thesis/):
+%   latexmk -pdf main.tex
+% (kotex in preamble provides Korean on the title page)
+%
+% ============================================================================
+% DOCUMENT SCHEME
+% ============================================================================
+%
+%  FRONT MATTER (roman page numbers)
+%  ├── title.tex           Title page
+%  ├── abstract.tex        Abstract + keywords
+%  ├── acknowledgments.tex Optional
+%  └── contents.tex        TOC, list of figures/tables
+%
+%  BODY (arabic page numbers)
+%  ├── 01_introduction     Motivation, problem, contributions, outline
+%  ├── 02_background       COP, solvers, diffusion, RL-FT, related work
+%  ├── 03_methodology      Architecture, SL, CADO, decoding, implementation
+%  ├── 04_experiments      Setup, data, results, ablations, discussion
+%  └── 05_conclusion        Summary, limitations, future work
+%
+%  BACK MATTER
+%  ├── appendix/           Extra tables, configs, plots
+%  └── references.bib      Bibliography (natbib)
+%
+%  ASSETS
+%  ├── figures/            \includegraphics{figures/...}
+%  └── tables/             Optional standalone table fragments
+%
+% ============================================================================
+
+\input{preamble}
+
+\begin{document}
+
+% --- Front matter ---
+\input{frontmatter/title}
+\input{frontmatter/abstract}
+\input{frontmatter/acknowledgments}
+\input{frontmatter/contents}
+
+% --- Body ---
+\cleardoublepage
+\pagenumbering{arabic}
+
+\input{chapters/01_introduction}
+\input{chapters/02_background}
+\input{chapters/03_methodology}
+\input{chapters/04_experiments}
+\input{chapters/05_conclusion}
+
+% --- Back matter ---
+\appendix
+\input{appendix/implementation_details}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

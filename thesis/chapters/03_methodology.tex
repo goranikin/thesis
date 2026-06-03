@@ -1,0 +1,26 @@
+\chapter{Methodology}
+\label{ch:methodology}
+
+\section{Overview}
+\label{sec:method-overview}
+% Pipeline diagram: data $\rightarrow$ SL training $\rightarrow$ optional RL $\rightarrow$ eval.
+
+\section{Model Architecture}
+\label{sec:architecture}
+% GNN encoder, diffusion head, problem-specific inputs (TSP vs CVRP).
+
+\section{Supervised Training}
+\label{sec:supervised}
+% Loss, schedules, checkpoints; reference configs in \texttt{configs/}.
+
+\section{CADO Fine-Tuning}
+\label{sec:cado}
+% Hybrid-FT layers, LoRA rank, REINFORCE objective, advantage normalization.
+
+\section{Decoding and Evaluation}
+\label{sec:decoding}
+% Denoising steps $M_{\mathrm{train}}$ / $M_{\mathrm{eval}}$, greedy decode, 2-opt, gap metric.
+
+\section{Implementation}
+\label{sec:implementation}
+% Code layout: \texttt{difusco/}, \texttt{cado/}, Hydra configs, reproducibility (seeds, W\&B).
