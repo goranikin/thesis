@@ -3,7 +3,30 @@
 
 \section{Motivation}
 \label{sec:motivation}
-% NP-hard routing problems; limits of classical solvers vs. learned heuristics.
+Combinatorial optimization (CO) is a fundamental field in computer science and operations research,
+encompassing the search for an optimal solution from a finite but often exponentially large set of
+candidates. Classic examples include the traveling salesman problem (TSP), the maximum independent set (MIS),
+and the vehicle routing problem (VRP). These problems are NP-hard, meaning they are believed to be
+intractable in polynomial time, and no known algorithm can solve them efficiently at scale.
+
+Traditionally, CO problems have been handled by exact solvers (e.g., Concorde and Gurobi)
+\citep{applegate2006traveling,gurobi2023}, approximation algorithms, and hand-crafted heuristics
+such as LKH and local search methods like 2-opt
+\citep{helsgaun2017extension,croes1958method,lin1973effective}.
+However, these methods have significant drawbacks, often demanding substantial domain expertise,
+careful engineering, or considerable computational resources. These limitations have motivated the
+search for data-driven alternatives. In recent years, neural combinatorial optimization (NCO) has emerged
+as a promising approach to address the constraints of traditional methods
+\citep{bello2017neural}.
+
+As the field of NCO has progressed, various architectures have been proposed. In this paper,
+we utilize a diffusion-based architecture modeled with a Bernouill distribution to solve CO
+problems for two primary reasons: 1) Diffusion-based architectures can capture high-dimensional,
+multi-modal distributions, evaluating solution probabilities simultaneously. Due to the inherent
+complexity of CO problems, this multi-modality is crucial for capturing the underlying problem structure.
+2) The diffusion process iteratively refines its output, a mechanism that conceptually mirrors
+the iterative improvement approaches of classical solvers. Consequently, this research investigates
+methods to enhance the capabilities of diffusion-based models in solving CO problems.
 
 \section{Problem Statement}
 \label{sec:problem-statement}

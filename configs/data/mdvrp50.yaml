@@ -1,0 +1,4 @@
+num_customers: 50
+min_depots: 2
+max_depots: 5
+customer_knn: 0

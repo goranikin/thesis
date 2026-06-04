@@ -312,6 +312,11 @@ INPUT appendix/implementation_details.tex
 INPUT ./main.bbl
 INPUT ./main.bbl
 INPUT main.bbl
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2026/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/lm/rm-lmtt10.tfm
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc
 INPUT main.aux
 INPUT ./main.out
 INPUT ./main.out
@@ -320,6 +325,7 @@ INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr10.pfb
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr12.pfb
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmri10.pfb
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmtt10.pfb
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc7.pfb
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcd.pfb
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd6.pfb

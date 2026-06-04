@@ -1,0 +1,16 @@
+defaults:
+  - data: mdvrp50
+  - model: small
+  - diffusion: categorical
+  - training: default
+  - inference: default
+  - _self_
+
+data_path: ./data/mdvrp10-10x5-5_64000_pyvrp.txt
+checkpoint_dir: ./checkpoints
+checkpoint_tag: difusco_mdvrp
+
+wandb:
+  project: difusco-mdvrp
+  mode: online
+  run_name: null
