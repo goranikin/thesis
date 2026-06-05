@@ -4,7 +4,7 @@
 \section{Overview}
 \label{sec:method-overview}
 
-This thesis develops and evaluates diffusion-based neural solvers for routing problems. The proposed methodology follows a two-stage training pipeline. First, a DIFUSCO-style graph diffusion model is trained with supervised denoising using solver-generated reference solutions. Second, the supervised checkpoint can be further adapted using a CADO-style reinforcement learning objective that directly rewards the quality of the decoded solution.
+This thesis develops and evaluates diffusion-based neural solvers for routing problems. The proposed methodology follows a two-stage training pipeline. First, a DIFUSCO-style graph diffusion model is trained with supervised denoising using solver-generated reference solutions \citep{sun2023difusco}. Second, the supervised checkpoint can be further adapted using a CADO-style reinforcement learning objective that directly rewards the quality of the decoded solution \citep{yoon2024cado}.
 
 The motivation for this design is that supervised denoising provides stable training for high-dimensional binary solution structures, while reinforcement learning fine-tuning reduces the mismatch between the training objective and the final evaluation objective. In supervised learning, the model is trained to imitate reference binary labels. However, routing performance is ultimately determined only after the predicted heatmap is passed through a non-differentiable decoder. Therefore, the second stage explicitly incorporates the decoder and the decoded solution cost into the training signal.
 
@@ -12,7 +12,7 @@ The motivation for this design is that supervised denoising provides stable trai
     \centering
     \includegraphics[width=0.85\textwidth]{./figures/pipeline.png}
     \caption{
-        Overview of the proposed training and evaluation pipeline. A DIFUSCO-style diffusion model is first trained by supervised denoising on solver-generated binary labels. The trained checkpoint can then be fine-tuned with a CADO-style reinforcement learning objective based on decoded solution quality.
+        Overview of the proposed training and evaluation pipeline. A DIFUSCO-style diffusion model is first trained by supervised denoising on solver-generated binary labels \citep{sun2023difusco}. The trained checkpoint can then be fine-tuned with a CADO-style reinforcement learning objective based on decoded solution quality \citep{yoon2024cado}.
     }
     \label{fig:pipeline}
 \end{figure}
@@ -22,7 +22,7 @@ The implementation covers three routing settings: the Traveling Salesman Problem
 \section{Binary Solution Representation}
 \label{sec:binary-solution-representation}
 
-Following the graph-based diffusion formulation, each optimization instance is represented by a binary solution vector. Let \(s\) denote a problem instance and let
+Following the graph-based diffusion formulation of DIFUSCO \citep{sun2023difusco}, each optimization instance is represented by a binary solution vector. Let \(s\) denote a problem instance and let
 \[
     x_0 \in \{0,1\}^{|\mathcal{B}_s|}
 \]
@@ -45,7 +45,7 @@ represents a customer--depot assignment decision. A feasible assignment should a
 \section{Discrete Diffusion Training}
 \label{sec:discrete-diffusion-training}
 
-The supervised training stage follows a discrete diffusion process over binary solution variables. Starting from a clean reference solution \(x_0\), the forward process gradually corrupts the binary variables into noisy states \(x_t\) for timesteps \(t=1,\ldots,T\). In the discrete Bernoulli diffusion setting, each binary variable is represented as a two-class categorical variable. The transition matrix at timestep \(t\) is
+The supervised training stage follows the discrete diffusion process used for graph-based combinatorial optimization in DIFUSCO \citep{sun2023difusco}. Starting from a clean reference solution \(x_0\), the forward process gradually corrupts the binary variables into noisy states \(x_t\) for timesteps \(t=1,\ldots,T\). In the discrete Bernoulli diffusion setting, each binary variable is represented as a two-class categorical variable. The transition matrix at timestep \(t\) is
 \[
     Q_t =
     \begin{pmatrix}
@@ -96,7 +96,7 @@ This heatmap is later decoded into a feasible or repaired discrete solution.
 \section{Graph Denoising Architecture}
 \label{sec:graph-denoising-architecture}
 
-The denoising model is implemented as an edge-aware graph neural network. The backbone maintains both node embeddings and edge embeddings, which is important because the main prediction target in routing problems is edge-based or assignment-edge-based.
+The denoising model is implemented as an edge-aware graph neural network following the AGNN-style backbone used in DIFUSCO \citep{sun2023difusco}. The backbone maintains both node embeddings and edge embeddings, which is important because the main prediction target in routing problems is edge-based or assignment-edge-based.
 
 The TSP model receives node coordinates, edge indices, edge distances, the noisy edge state \(x_t\), and the diffusion timestep \(t\). The initial node representation is obtained from a sinusoidal positional embedding of the two-dimensional coordinates:
 \[
@@ -156,7 +156,7 @@ The resulting class-1 probabilities form the heatmap used for decoding.
 
 The diffusion model produces heatmap scores, but heatmaps do not automatically satisfy the hard constraints of routing problems. Therefore, each problem requires a problem-specific decoder that maps the predicted scores into a feasible or repaired solution.
 
-For TSP, the decoder ranks undirected candidate edges using the sum of the two directed heatmap scores normalized by Euclidean distance. Edges are inserted into the partial solution only if they do not violate degree constraints and do not create a premature subtour. The process continues until a complete Hamiltonian cycle is formed. A local search heuristic such as 2-opt can optionally be applied to improve the decoded tour; in the evaluation code, 2-opt is applied to the decoded TSP tour.
+For TSP, the decoder ranks undirected candidate edges using the sum of the two directed heatmap scores normalized by Euclidean distance, as in heatmap decoding for DIFUSCO \citep{sun2023difusco}. Edges are inserted into the partial solution only if they do not violate degree constraints and do not create a premature subtour. The process continues until a complete Hamiltonian cycle is formed. A local search heuristic such as 2-opt \citep{croes1958method} can optionally be applied to improve the decoded tour; in the evaluation code, 2-opt is applied to the decoded TSP tour.
 
 For CVRP, the decoder uses a similar score-ranked edge insertion procedure. Customer nodes are constrained to degree two, customer-only subtours are forbidden, and capacity feasibility is enforced by tracking the demand of each partial customer chain before it is connected to the depot. If some customers remain open after the greedy pass, they are attached to the depot as a repair step. The decoded CVRP cost is the sum of Euclidean distances over all recovered vehicle routes.
 
@@ -165,7 +165,7 @@ For MDVRP, the decoder operates on the customer--depot assignment heatmap. The d
 \section{CADO-Style Reinforcement Learning Fine-Tuning}
 \label{sec:cado-style-finetuning}
 
-The supervised denoising objective trains the model to imitate solver-generated reference solutions. However, minimizing cross-entropy against reference labels does not necessarily minimize the cost of the final decoded solution. This mismatch occurs because the supervised loss is not aware of the non-differentiable decoder and does not directly optimize the routing objective. To reduce this mismatch, this thesis applies CADO-style reinforcement learning fine-tuning after supervised pretraining.
+The supervised denoising objective trains the model to imitate solver-generated reference solutions. However, minimizing cross-entropy against reference labels does not necessarily minimize the cost of the final decoded solution. This mismatch occurs because the supervised loss is not aware of the non-differentiable decoder and does not directly optimize the routing objective. To reduce this mismatch, this thesis applies CADO-style reinforcement learning fine-tuning after supervised pretraining \citep{yoon2024cado}.
 
 Let \(g_s(\cdot)\) denote the problem-specific decoder and let \(C_s(\cdot)\) denote the decoded solution cost. The reverse diffusion process is treated as a Markov decision process. At denoising timestep \(t\), the state contains the instance, the timestep, and the current noisy solution:
 \[
@@ -220,7 +220,7 @@ For MDVRP, the current implementation does not use a route-cost reward because t
 \]
 In this assignment-level setting, the SR and LCR modes both use the same negative miss-rate reward.
 
-The REINFORCE gradient is estimated as
+The REINFORCE gradient estimator \citep{williams1992simple} is estimated as
 \[
     \nabla_\theta J(\theta)
     =
@@ -259,7 +259,7 @@ where \(B\) is the accumulated batch size. The second term is a sampled negative
 
 Fine-tuning the entire diffusion backbone with reinforcement learning can be unstable and memory-intensive. To improve stability, this thesis uses the supervised checkpoint as the initialization for RL fine-tuning. The fine-tuning stage updates only the parameters selected for adaptation while preserving most of the representation learned during supervised denoising.
 
-In the hybrid fine-tuning setting, all parameters are frozen first. The final AGNN layers selected for adaptation and the edge-classification head are then fully unfrozen. In the earlier AGNN layers, low-rank adapters are inserted into the linear maps \(P\), \(Q\), \(R\), \(U\), and \(V\), while the original base weights remain frozen. For a base linear map \(W\), the adapted computation has the form
+In the hybrid fine-tuning setting, all parameters are frozen first. The final AGNN layers selected for adaptation and the edge-classification head are then fully unfrozen. In the earlier AGNN layers, low-rank adapters \citep{hu2022lora} are inserted into the linear maps \(P\), \(Q\), \(R\), \(U\), and \(V\), while the original base weights remain frozen. For a base linear map \(W\), the adapted computation has the form
 \[
     Wx
     +

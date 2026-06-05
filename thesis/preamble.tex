@@ -5,7 +5,7 @@
 
 \RequirePackage{fix-cm}
 
-\documentclass[oneside, ko, ms]{snuthesis_utf8_kor}
+\documentclass[oneside, ko, under]{snuthesis_utf8_kor}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Table of contents (Korean labels)
@@ -78,9 +78,9 @@
 \phonenumber{010-0000-0000}
 \studentnumber{2020-12053}
 
-\advisor{지도교수 성함}        % Korean name on approval page
-\advisor*{Advisor Name}        % English name (optional)
-\advisorn{지~도~교~수}          % Spaced Korean name for approval page
+\advisor{이재욱}                % Korean supervisor name
+\advisor*{Lee Jaewook}          % English supervisor name
+\advisorn{이~재~욱}             % Spaced Korean supervisor name
 
 \graddate{2026~년~~2~월}
 \submissiondate{2026~년~~1~월}
@@ -95,3 +95,47 @@
 {}%
 
 \setlength{\committeenameunderlinelength}{5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Undergraduate cover override
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\renewcommand{\makefrontcover}{%
+  \cleardoublepage
+  \if@twocolumn \@restonecoltrue
+  \else \@restonecolfalse \fi
+  \onecolumn
+  \thispagestyle{empty}
+  \noindent
+  \parbox[][\textheight][s]{\textwidth}{%
+    \centering
+    \normalfont
+    \linespread{1.3}\selectfont
+    \fontsize{14pt}{14pt}\selectfont
+    공학사학위논문\\
+    \vspace{2cm}\nointerlineskip
+    \fontsize{22pt}{22pt}\selectfont
+    \@title\\
+    \vspace{1cm}\nointerlineskip
+    \fontsize{16pt}{16pt}\selectfont
+    \@titlealt\\
+    \vspace{2cm}\nointerlineskip
+    \fontsize{14pt}{14pt}\selectfont
+    지도교수\quad\@advisor\\
+    \vspace{2cm}\nointerlineskip
+    \@snu@graddate\\
+    \vspace{3cm}\nointerlineskip
+    \fontsize{16pt}{16pt}\selectfont
+    서울대학교 공과대학\\
+    \vspace{5mm}\nointerlineskip
+    \fontsize{14pt}{14pt}\selectfont
+    산업공학과\\
+    \vspace{1cm}\nointerlineskip
+    \fontsize{16pt}{16pt}\selectfont
+    \@snu@authorn
+    \vfill
+  }
+  \newpage
+  \if@restonecol \twocolumn \fi
+}
+\makeatother

@@ -1,14 +1,146 @@
 \chapter{Implementation Details}
 \label{app:implementation}
 
-\section{Configuration Reference}
+\section{Shared Configuration}
 \label{app:configs}
-% Key Hydra YAML fields; link to \texttt{configs/difusco\_*} and \texttt{configs/cado\_*}.
 
-\section{Hyperparameter Tables}
-\label{app:hyperparams}
-% Full tables mirroring experiment logs in \texttt{logs/}.
+All experiments use Euclidean routing instances with solver-generated labels. Unless otherwise
+stated, the dataset is split into 90\% training and 10\% validation with random seed 42. The
+categorical diffusion process uses \(T=1000\) training diffusion steps with a linear beta
+schedule from \(10^{-4}\) to \(0.02\). Validation and CADO rollouts use a cosine subsampling
+schedule over the diffusion chain.
 
-\section{Additional Plots}
-\label{app:plots}
-% Training curves, gap vs epoch, optional W\&B exports.
+\begin{table}[htbp]
+\centering
+\caption{Shared data and diffusion settings.}
+\label{tab:app-shared-config}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+Problem & Dataset file & Instance size & Label source & Diffusion setting \\
+\midrule
+TSP-50 & \texttt{tsp50\_128000\_concorde.txt} & 50 cities & Concorde & categorical, \(T=1000\) \\
+CVRP-50 & \texttt{cvrp50-50\_128000\_pyvrp.txt} & 50 customers, 1 depot & PyVRP & categorical, \(T=1000\) \\
+MDVRP-50 & \texttt{mdvrp10-10x5-5\_64000\_pyvrp.txt} & 50 customers, 2--5 depots & PyVRP & categorical, \(T=1000\) \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{Supervised DIFUSCO Runs}
+\label{app:sl-configs}
+
+The supervised experiments train the DIFUSCO-style denoising model with cross-entropy on
+solver-generated binary labels. AdamW is used with cosine learning-rate decay, weight decay
+\(10^{-4}\), dropout 0, and gradient clipping at norm 1.0. The TSP run uses the small model
+because it was trained locally; the CVRP run uses the paper-size model on A100; and the MDVRP
+run uses the small model for the assignment-level extension.
+
+\begin{table}[htbp]
+\centering
+\caption{Supervised training configurations used for the reported baselines.}
+\label{tab:app-sl-configs}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllll}
+\toprule
+Run & Model & Platform & Epochs & Batch & LR & Eval subset & Validation decoding \\
+\midrule
+TSP-50 SL & \(h=128,L=6\) & Apple M4 Pro MPS & 50 & 16 & \(2\times10^{-4}\) & 500 & greedy + 2-opt, \(M_{\mathrm{eval}}=50\) \\
+CVRP-50 SL & \(h=128,L=6\) & VESSL A100 & 50 & 64 & \(2\times10^{-4}\) & 500 & greedy + per-route 2-opt, \(M_{\mathrm{eval}}=50\) \\
+MDVRP-50 SL & \(h=128,L=6\) & VESSL A100 & 50 & 64 & \(2\times10^{-4}\) & 500 & assignment decode, \(M_{\mathrm{eval}}=50\) \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Reported supervised validation outcomes.}
+\label{tab:app-sl-results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+Run & Best validation metric & Final validation metric & Wall-clock & Notes \\
+\midrule
+TSP-50 SL & 4.46\% gap & 4.46\% gap & 17 h 47 min & per-epoch validation curve not recorded due to logging issue \\
+CVRP-50 SL & 25.96\% gap & 35.51\% gap & 2 h 9 min & best at epoch 10 with 2-opt validation \\
+MDVRP-50 SL & 81.89\% accuracy & 55.75\% accuracy & 57 min 44 s & assignment-level metric; 0\% capacity violation \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{CADO Fine-Tuning Runs}
+\label{app:cado-configs}
+
+CADO fine-tuning starts from the corresponding supervised checkpoint. All reported CADO runs
+use REINFORCE, AdamW with learning rate \(10^{-4}\), no weight decay, gradient clipping at norm
+1.0, LoRA rank 2, and one fully trainable final graph layer plus the output head. Each epoch
+uses 128 sampled training instances, accumulated into batches of 32, giving four optimizer
+updates per epoch. Unless otherwise stated, the rollout uses \(M_{\mathrm{train}}=5\) and a
+cosine schedule.
+
+\begin{table}[htbp]
+\centering
+\caption{CADO fine-tuning configurations used for the reported experiments.}
+\label{tab:app-cado-configs}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllllll}
+\toprule
+Run & Start checkpoint & Reward & Epochs & Updates & \(M_{\mathrm{eval}}\) & Eval subset & Platform & Notes \\
+\midrule
+TSP-50 CADO & TSP-50 SL & SR & 1000 & 4000 & 50 & 200 & Apple M4 Pro MPS & reported TSP CADO run \\
+CVRP-50 CADO & CVRP-50 SL & LCR & 1000 & 4000 & 25 & 100 & VESSL A100 & best checkpoint at epoch 470 \\
+MDVRP-50 CADO & MDVRP-50 SL & SR & 500 & 2000 & 25 & 100 & VESSL A100 & assignment-level fine-tuning \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Reported CADO validation outcomes.}
+\label{tab:app-cado-results}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+Run & Best validation metric & Final validation metric & Wall-clock & Main interpretation \\
+\midrule
+TSP-50 CADO & 3.77\% gap & 3.77\% gap & about 6--7 h & 1000-epoch run improves over 4.46\% SL baseline \\
+CVRP-50 CADO & 20.24\% gap & 47.16\% gap & 7 h 1 min & best checkpoint improves, final checkpoint collapses \\
+MDVRP-50 CADO & 80.86\% accuracy & 80.48\% accuracy & 1 h 49 min & recovers assignment accuracy with 0\% capacity violation \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{Evaluation Protocol}
+\label{app:evaluation-protocol}
+
+TSP and CVRP use the relative gap
+\[
+    \mathrm{Gap}(\%)
+    =
+    \frac{L_{\mathrm{pred}} - L_{\mathrm{gt}}}{L_{\mathrm{gt}}}
+    \times 100.
+\]
+For TSP, \(L_{\mathrm{pred}}\) is computed after greedy heatmap decoding and 2-opt. For CVRP,
+the supervised baseline reported in the main table uses greedy decoding with per-route 2-opt,
+whereas the CADO run is evaluated with the implemented CADO CVRP decoder. CVRP validation also
+records over-capacity route violations; all reported CVRP validation rows have 0\%
+over-capacity rate. MDVRP reports assignment accuracy and capacity-violation rate rather than
+route-cost gap, because full route construction within each depot is not part of the current
+MDVRP experiment.
+
+\section{Configuration Files and Logs}
+\label{app:config-files}
+
+The Hydra configuration files used by the code are stored under \texttt{configs/}. The main
+entry-point configuration files are:
+\begin{itemize}
+    \item supervised: the three \texttt{difusco\_*\_config.yaml} files;
+    \item CADO: the three \texttt{cado\_*\_config.yaml} files.
+\end{itemize}
+The exact run values reported above are taken from the experiment logs under \texttt{logs/},
+because some runs override the YAML defaults from the command line or from the remote execution
+environment.

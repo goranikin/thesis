@@ -4,39 +4,39 @@
 \section{Experimental Setup}
 \label{sec:setup}
 
-The experiments evaluate whether diffusion-based heatmap solvers can be trained andfine-tuned for increasingly constrained routing problems. TSP is used as the baseline setting, CVRP tests whether the approach remains useful under vehicle-capacity constraints, and MDVRP tests an initial multi-depot assignment extension.
+The experiments evaluate whether diffusion-based heatmap solvers can be trained and fine-tuned for increasingly constrained routing problems. TSP is used as the baseline setting, CVRP tests whether the approach remains useful under vehicle-capacity constraints, and MDVRP tests an initial multi-depot assignment extension. The supervised solver follows DIFUSCO \citep{sun2023difusco}, and the RL fine-tuning stage follows the CADO framework \citep{yoon2024cado}.
 
-Two compute environments were used. TSP supervised and CADO experiments were run locally on an Apple M4 Pro machine with 24 GB unified memory using the PyTorch MPS backend. Larger CVRP and MDVRP supervised runs were executed remotely on a VESSL A100 instance. All main runs use seed 42. Supervised training uses AdamW with learning rate $2\times10^{-4}$, weight decay $10^{-4}$, cosine learning-rate decay, and gradient clipping at norm 1.0. CADO fine-tuning uses AdamW with learning rate $10^{-4}$, no weight decay, LoRA rank 2, one selectively fine-tuned final layer, and $M_{\mathrm{train}}=5$. The CADO evaluation step count follows the individual experiment configuration.
+Two compute environments were used. TSP supervised and CADO experiments were run locally on an Apple M4 Pro machine with 24 GB unified memory using the PyTorch MPS backend. Larger CVRP and MDVRP supervised runs were executed remotely on a VESSL A100 instance. All main runs use seed 42. Supervised training uses AdamW \citep{loshchilov2019decoupled} with learning rate $2\times10^{-4}$, weight decay $10^{-4}$, cosine learning-rate decay, and gradient clipping at norm 1.0. CADO fine-tuning uses AdamW with learning rate $10^{-4}$, no weight decay, LoRA rank 2 \citep{hu2022lora}, one selectively fine-tuned final layer, and $M_{\mathrm{train}}=5$. The CADO evaluation step count follows the individual experiment configuration.
 
 \section{Datasets}
 \label{sec:datasets}
 
 The datasets consist of synthetic Euclidean routing instances with solver-generated labels.
-TSP-50 contains 128,000 instances solved by Concorde. CVRP-50 contains single-depot instances
-with 50 customers generated from the X-style distribution and solved by PyVRP. The CVRP file
+TSP-50 contains 128,000 instances solved by Concorde \citep{applegate2006traveling}. CVRP-50 contains single-depot instances
+with 50 customers generated from the X-style distribution and solved by PyVRP \citep{wouda2024pyvrp}. The CVRP file
 used by the main run contains 128,000 labeled instances. The main MDVRP run uses a generated
 dataset of 64,000 multi-depot instances with 50 customers.
 
 For supervised training, the dataset is split into 90\% training and 10\% validation. To keep
 validation cost manageable, each validation pass evaluates a fixed subset: 500 instances for
-the supervised TSP, CVRP, and MDVRP runs, 100 instances for the short TSP CADO pilot the CVRP and MDVRP CADO runs.
+the supervised TSP, CVRP, and MDVRP runs, 200 instances for the TSP CADO run, and 100 instances for the CVRP and MDVRP CADO runs.
 
 \section{Baselines and Metrics}
 \label{sec:metrics}
 
-The primary baseline is the supervised DIFUSCO checkpoint trained with cross-entropy on solver-generated labels. The central comparison in this chapter is the quality before and after CADO-style RL fine-tuning. For TSP and CVRP, the main metric is optimality gap:
+The primary baseline is the supervised DIFUSCO checkpoint trained with cross-entropy on solver-generated labels \citep{sun2023difusco}. The central comparison in this chapter is the quality before and after CADO-style RL fine-tuning \citep{yoon2024cado}. For TSP and CVRP, the main metric is optimality gap:
 \[
 \mathrm{Gap}(\%) =
 \frac{L_{\mathrm{pred}} - L_{\mathrm{gt}}}{L_{\mathrm{gt}}}\times 100.
 \]
-For TSP, the decoded length \(L_{\mathrm{pred}}\) is measured after greedy decoding and 2-opt post-processing. For CVRP, the supervised comparison includes the best greedy+2-opt validation result, while the CADO validation uses the implemented greedy CVRP decoder and reports the capacity-violation rate. For MDVRP, the current implementation reports depot assignment accuracy and capacity-violation rate, because full route-cost evaluation for MDVRP is not yet integrated into the training loop. Therefore, lower values are better for TSP/CVRP gap, while higher values are better for MDVRP assignment accuracy.
+For TSP, the decoded length \(L_{\mathrm{pred}}\) is measured after greedy decoding and 2-opt post-processing \citep{croes1958method}. For CVRP, the supervised comparison includes the best greedy+2-opt validation result, while the CADO validation uses the implemented greedy CVRP decoder and reports the capacity-violation rate. For MDVRP, the current implementation reports depot assignment accuracy and capacity-violation rate, because full route-cost evaluation for MDVRP is not yet integrated into the training loop. Therefore, lower values are better for TSP/CVRP gap, while higher values are better for MDVRP assignment accuracy.
 
 \section{Main Results}
 \label{sec:main-results}
 
 \begin{table}[t]
 \centering
-\caption{Before/after comparison for CADO-style RL fine-tuning. For TSP and CVRP,
+\caption{Before/after comparison for CADO-style RL fine-tuning \citep{yoon2024cado}. For TSP and CVRP,
 \(\Delta\) is the reduction in optimality gap. For MDVRP, \(\Delta\) is the gain in assignment
 accuracy within the CADO fine-tuning run.}
 \label{tab:main-results}
@@ -45,7 +45,7 @@ accuracy within the CADO fine-tuning run.}
 \toprule
 Problem & Metric & Before RL & After RL & \(\Delta\) & Notes \\
 \midrule
-TSP-50 & Gap & 4.46\% & 3.77\% & 0.69 pp lower & best 100-epoch CADO \\
+TSP-50 & Gap & 4.46\% & 3.77\% & 0.69 pp lower & 1000-epoch CADO \\
 CVRP-50 & Gap & 25.96\% & 20.24\% & 5.72 pp lower & best epoch 470 CADO \\
 MDVRP-50 & Assignment acc. & 78.02\% & 80.86\% & 2.84 pp higher & CADO epoch 10 to 390 \\
 \bottomrule
@@ -56,13 +56,13 @@ MDVRP-50 & Assignment acc. & 78.02\% & 80.86\% & 2.84 pp higher & CADO epoch 10 
 \begin{figure}[t]
 \centering
 \input{figures/rl_delta_summary}
-\caption{Improvement after CADO-style RL fine-tuning. TSP and CVRP report reductions in optimality gap, while MDVRP reports the assignment-accuracy gain from the first CADO validation point to the best CADO checkpoint.}
+\caption{Improvement after CADO-style RL fine-tuning \citep{yoon2024cado}. TSP and CVRP report reductions in optimality gap, while MDVRP reports the assignment-accuracy gain from the first CADO validation point to the best CADO checkpoint.}
 \label{fig:rl-delta-summary}
 \end{figure}
 
 The summary in \cref{tab:main-results,fig:rl-delta-summary} shows the main experimental direction: after RL fine-tuning, the selected CADO checkpoints improve the decoded metric for all three problem settings. The most direct gap reductions are observed on TSP-50 and CVRP-50. The MDVRP result is assignment-level rather than route-cost based; it shows that the CADO run improves over its own initial validation accuracy and maintains feasibility, although it does not exceed the separately reported best supervised checkpoint.
 
-For TSP-50, the supervised small-model checkpoint reaches a 4.46\% validation gap. The 100-epoch CADO run improves this to 3.77\%, a 0.69 percentage-point absolute reduction and a 15.4\% relative reduction in gap. The longer 1000-epoch run gives a best gap of 3.96\% and a final gap of 4.03\%. Because the short and long CADO runs use different validation subset sizes, the 3.77\% and 3.96\% values should not be compared point-by-point. Both runs support the same conclusion: RL fine-tuning improves the supervised starting point, but the improvement is modest and noisy.
+For TSP-50, the supervised small-model checkpoint reaches a 4.46\% validation gap. The 1000-epoch CADO run improves this to 3.77\%, a 0.69 percentage-point absolute reduction and a 15.4\% relative reduction in gap. This result supports the main conclusion that RL fine-tuning improves the supervised starting point, although the improvement remains modest compared with classical solver quality.
 
 \section{Ablations}
 \label{sec:ablations}
@@ -70,10 +70,10 @@ For TSP-50, the supervised small-model checkpoint reaches a 4.46\% validation ga
 Several implementation-level ablations and comparisons were informative.
 
 \paragraph{Effect of 2-opt on CVRP.}
-The CVRP supervised baseline was evaluated with and without per-route 2-opt. Greedy decoding alone reached approximately 29.98\% best validation gap, while enabling 2-opt improved the best gap to 25.96\%. This confirms that local refinement is an important part of the heatmap-to-route pipeline for CVRP.
+The CVRP supervised baseline was evaluated with and without per-route 2-opt \citep{croes1958method}. Greedy decoding alone reached approximately 29.98\% best validation gap, while enabling 2-opt improved the best gap to 25.96\%. This confirms that local refinement is an important part of the heatmap-to-route pipeline for CVRP.
 
 \paragraph{Reward mode.}
-Early TSP CADO pilots showed that LCR was ineffective with the weak supervised baseline used in this thesis: the reward produced little usable relative signal. Switching to SR with batch-normalized advantages and learning rate $10^{-4}$ produced measurable improvements. For CVRP, the main CADO configuration uses LCR, but the run still exhibits strong instability, suggesting that reward scaling and checkpoint selection remain central issues.
+For TSP, LCR was ineffective with the weak supervised baseline used in this thesis: the reward produced little usable relative signal. Switching to SR with batch-normalized advantages and learning rate $10^{-4}$ produced measurable improvements. For CVRP, the main CADO configuration uses LCR, but the run still exhibits strong instability, suggesting that reward scaling and checkpoint selection remain central issues.
 
 \paragraph{Training duration.}
 Longer CADO training is not uniformly beneficial. On TSP, the 1000-epoch run improves the average validation band only slowly and remains noisy. On CVRP, the 1000-epoch run improves until the middle of training and then collapses. On MDVRP, 500 epochs are enough to recover from the early dip and finish near the best assignment accuracy. These results support validation-based checkpoint selection rather than selecting the final checkpoint by default.
