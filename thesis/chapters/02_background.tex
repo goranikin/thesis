@@ -1,22 +1,462 @@
-\chapter{Background}
-\label{ch:background}
+\chapter{Literature Review}
+\label{ch:Literature Review}
 
-\section{Combinatorial Optimization}
-\label{sec:cop}
-% TSP, CVRP definitions, notation ($n$ cities, capacity, routes).
+\section{Optimization Problems}
+\label{sec:optimization-problems}
+
+\subsection{Combinatorial Optimization}
+\label{subsec:combinatorial-optimization}
+
+This paper follows the conventional notation for combinatorial optimization introduced by
+\citet{papadimitriou1998combinatorial}. The space of candidate solutions for a CO problem
+instance $s$ is denoted by $\mathcal{X}_s = \{0, 1\}^N$, and the objective function is denoted
+by $c_s: \mathcal{X}_s \rightarrow \mathbb{R}$ for a solution $x \in \mathcal{X}_s$.
+Given a cost function $c_s(\cdot)$, the goal is to find the optimal solution $x^{s*}$ for
+the given instance $s$:
+\[
+x^{s*} = \arg\min_{x \in \mathcal{X}_s} c_s(x).
+\]
+
+Because enumerating all possible solution sets for a CO problem is computationally
+intractable, exact methods often relax the binary condition, solve a linear program (LP), and
+subsequently branch on fractional solution components. This approach is known as branch and
+bound (B\&B). While B\&B avoids enumerating entirely unnecessary solution sets, the number of
+branches can still grow exponentially in the worst case.
+
+\subsection{Traveling Salesman Problem}
+\label{subsec:tsp}
+
+Let $G = (V, E)$ be a complete undirected graph with $|V| = n$ cities and edge costs
+$c_{ij} \ge 0$ for all $\{i,j\} \in E$. Define binary decision variables
+\[
+x_{ij} =
+\begin{cases}
+1, & \text{if the tour uses edge } \{i,j\},\\
+0, & \text{otherwise.}
+\end{cases}
+\]
+
+The traveling salesman problem (TSP) can be formulated as the following integer program:
+\[
+\begin{aligned}
+\min_{x}\quad & \sum_{\{i,j\}\in E} c_{ij} x_{ij} \\
+\text{s.t.}\quad
+& \sum_{j\in V\setminus\{i\}} x_{ij} = 2, && \forall i\in V
+  \quad \text{(degree constraints)}\\
+& \sum_{\{i,j\}\in E(S)} x_{ij} \le |S|-1, && \forall S\subset V,\; 2\le |S|\le n-1
+  \quad \text{(subtour elimination)}\\
+& x_{ij}\in\{0,1\}, && \forall \{i,j\}\in E.
+\end{aligned}
+\]
+Here, $E(S) = \{\{i,j\}\in E : i\in S,\; j\in S\}$ denotes the set of edges with both
+endpoints in subset $S$. The subtour elimination constraints enforce that the selected edges
+form a single Hamiltonian cycle visiting every city exactly once, rather than multiple
+disjoint cycles.
+
+\subsection{Capacitated Vehicle Routing Problem}
+\label{subsec:cvrp}
+
+Let $G=(V,E)$ be a complete graph where $V = \{0,1,\dots,n\}$, with depot $0$ and customers
+$1,\dots,n$. Each customer $i\in\{1,\dots,n\}$ has demand $q_i>0$, and $c_{ij}\ge 0$ is the
+travel cost between nodes $i$ and $j$. A fleet of at most $m$ identical vehicles is available,
+each with capacity $Q$. Define binary decision variables
+\[
+x_{ij}=
+\begin{cases}
+1, & \text{if a vehicle travels directly from } i \text{ to } j,\\
+0, & \text{otherwise,}
+\end{cases}
+\qquad \forall i\ne j,\; i,j\in V,
+\]
+and continuous load variables $u_i$ for $i\in\{1,\dots,n\}$ denoting the cumulative load
+delivered upon arrival at customer $i$.
+
+The capacitated vehicle routing problem (CVRP) can be formulated as the following
+mixed-integer program:
+\[
+\begin{aligned}
+\min_{x,u}\quad & \sum_{i\in V}\sum_{j\in V\setminus\{i\}} c_{ij}x_{ij}\\
+\text{s.t.}\quad
+& \sum_{j\in V\setminus\{i\}} x_{ij} = 1, && \forall i\in V\setminus\{0\}
+  \quad \text{(each customer departs once)}\\
+& \sum_{i\in V\setminus\{j\}} x_{ij} = 1, && \forall j\in V\setminus\{0\}
+  \quad \text{(each customer arrives once)}\\
+& \sum_{j\in V\setminus\{0\}} x_{0j} \le m, && \text{(number of routes)}\\
+& \sum_{i\in V\setminus\{0\}} x_{i0}
+  = \sum_{j\in V\setminus\{0\}} x_{0j}, && \text{(flow conservation at depot)}\\
+& q_i \le u_i \le Q, && \forall i\in V\setminus\{0\}
+  \quad \text{(capacity bounds)}\\
+& u_i - u_j + Qx_{ij} \le Q - q_j, &&
+  \forall i,j\in V\setminus\{0\},\; i\ne j
+  \quad \text{(MTZ)}\\
+& x_{ij}\in\{0,1\}, && \forall i\ne j,\; i,j\in V.
+\end{aligned}
+\]
+The Miller--Tucker--Zemlin (MTZ) constraints enforce route connectivity and eliminate
+subtours while simultaneously ensuring that vehicle capacity is not exceeded.
+
+\subsection{Multi-Depot Vehicle Routing Problem}
+\label{subsec:mdvrp}
+
+Let $G=(V,E)$ be a complete graph containing multiple depots and customers. Let
+$D=\{0,1,\dots,d\}$ be the set of depots and $C=\{d+1,\dots,d+n\}$ the set of customers, such
+that $V=D\cup C$ and $D\cap C=\emptyset$. Depot $k\in D$ has at most $m_k$ identical vehicles
+available, and each customer $i\in C$ has demand $q_i>0$. Let $c_{ij}\ge 0$ denote the travel
+cost between nodes $i$ and $j$, and let $V_k=C\cup\{k\}$ be the customer set together with
+depot $k$. Define depot-indexed binary decision variables
+\[
+x_{ij}^k=
+\begin{cases}
+1, & \text{if a vehicle from depot } k \text{ travels directly from } i \text{ to } j,\\
+0, & \text{otherwise,}
+\end{cases}
+\qquad \forall k\in D,\; i\ne j,\; i,j\in V_k,
+\]
+and assignment variables
+\[
+y_{ik}=
+\begin{cases}
+1, & \text{if customer } i \text{ is served by depot } k,\\
+0, & \text{otherwise,}
+\end{cases}
+\qquad \forall i\in C,\; k\in D.
+\]
+
+The multi-depot vehicle routing problem (MDVRP) can be formulated as the following
+mixed-integer program:
+\[
+\begin{aligned}
+\min_{x,y}\quad
+& \sum_{k\in D}\sum_{i\in V_k}\sum_{j\in V_k\setminus\{i\}} c_{ij}x_{ij}^k\\
+\text{s.t.}\quad
+& \sum_{k\in D} y_{ik} = 1, && \forall i\in C
+  \quad \text{(assign each customer to one depot)}\\
+& \sum_{j\in V_k\setminus\{i\}} x_{ij}^k = y_{ik}, &&
+  \forall i\in C,\; \forall k\in D
+  \quad \text{(customer departure)}\\
+& \sum_{j\in V_k\setminus\{i\}} x_{ji}^k = y_{ik}, &&
+  \forall i\in C,\; \forall k\in D
+  \quad \text{(customer arrival)}\\
+& \sum_{j\in C} x_{kj}^k = \sum_{j\in C} x_{jk}^k \le m_k, && \forall k\in D
+  \quad \text{(depot flow and route count)}\\
+& \sum_{i\in S}\sum_{j\in S\setminus\{i\}} x_{ij}^k \le |S|-1, &&
+  \forall k\in D,\; \forall S\subseteq C,\; 2\le |S|\le n-1
+  \quad \text{(subtour elimination)}\\
+& x_{ij}^k\in\{0,1\}, && \forall k\in D,\; i\ne j,\; i,j\in V_k,\\
+& y_{ik}\in\{0,1\}, && \forall i\in C,\; k\in D.
+\end{aligned}
+\]
+If vehicle capacities are included, standard capacity constraints, such as MTZ- or flow-based
+constraints within each depot's routes, can be added to ensure that the total demand on any
+route does not exceed the vehicle capacity.
 
 \section{Classical and Learning-Based Solvers}
 \label{sec:solvers}
-% LKH, Concorde, PyVRP; neural constructive / improvement methods.
+
+Combinatorial optimization solvers can be broadly grouped into exact methods,
+relaxation-based methods, and heuristic or metaheuristic methods. In practice, modern
+state-of-the-art solvers frequently combine these ideas.
+
+\subsection{Exact Solvers}
+\label{subsec:exact-solvers}
+
+Exact solvers provide guaranteed optimality, but their computational cost can grow
+exponentially. Branch and bound (B\&B) builds a search tree over partial solutions. At each
+node, it computes a lower bound, typically through a relaxation such as an LP relaxation. If
+the bound is worse than the best-known feasible solution, which acts as an upper bound, the
+node is pruned. B\&B is exact, but the search tree can still become exponentially large.
+
+Branch and cut (B\&C) augments B\&B with cutting planes. When the LP relaxation yields a
+fractional solution, the solver adds valid inequalities, or cuts, that remove the fractional
+solution while preserving all integer-feasible solutions. For the TSP, subtour elimination
+constraints serve as classic cuts. This strategy forms the backbone of solvers such as
+Concorde \citep{applegate2006traveling}.
+
+Branch and price (B\&P) combines B\&B with column generation. Instead of enumerating all
+variables, which is often exponential, the solver optimizes a restricted master problem and
+repeatedly generates new variables by solving a pricing subproblem. VRP formulations that use
+route variables commonly employ this approach.
+
+\subsection{Relaxation and Decomposition Methods}
+\label{subsec:relaxation-decomposition}
+
+Relaxation and decomposition methods are widely used to obtain bounds and exploit scalable
+problem structure. LP relaxation replaces integrality constraints with continuous constraints
+such as $x \in [0,1]$, yielding a linear program. LP relaxations provide lower bounds and are
+standard components in B\&B and B\&C frameworks, although their fractional solutions may differ
+substantially from integer-feasible solutions.
+
+Lagrangian relaxation moves hard constraints into the objective function using multipliers.
+This transformation can produce decomposable subproblems and often yields strong bounds,
+especially for routing and scheduling problems. Benders decomposition instead splits variables
+into a master problem and a subproblem. The subproblem generates Benders cuts that iteratively
+refine the master problem, making the approach effective for problems with naturally separable
+structure.
+
+\subsection{Heuristics and Metaheuristics}
+\label{subsec:heuristics-metaheuristics}
+
+Heuristics and metaheuristics are designed to obtain high-quality feasible solutions quickly.
+Local search iteratively improves a feasible solution through small neighborhood moves. In
+routing problems, common operations include 2-opt, 3-opt, relocate, swap, and cross-exchange.
+Although local search is fast and effective, it is susceptible to local minima.
+
+Metaheuristics are higher-level strategies designed to escape local minima or explore the
+solution space more broadly. Prominent examples include simulated annealing (SA), which
+occasionally accepts worse moves according to a temperature schedule; tabu search, which uses
+memory to avoid cycling back to recently visited solutions; genetic algorithms (GA), which
+maintain a population of solutions through crossover and mutation; and ant colony optimization
+(ACO), which constructs solutions probabilistically based on pheromone trails. These methods
+do not guarantee optimality but are highly competitive for large instances.
+
+\subsection{Learning-Assisted Solvers}
+\label{subsec:learning-assisted-solvers}
+
+Recent neural CO research often integrates traditional solvers in two distinct roles. First,
+exact or high-quality heuristic solutions can serve as teachers or oracles, providing
+ground-truth labels for supervised learning. Second, classical methods can act as decoding or
+refinement steps: neural models generate a soft solution, such as a probabilistic heatmap,
+which is subsequently transformed into a feasible hard solution using greedy decoding, local
+search such as 2-opt, or other solver components.
+
+In summary, exact solvers provide optimality guarantees at high computational cost,
+relaxations and decompositions offer scalable bounds, and heuristics provide strong solutions
+rapidly. Modern NCO systems frequently combine all three, aiming to address the limitations of
+traditional solvers through data-driven advantages.
+
+\section{Neural Network Methodologies}
+\label{sec:neural-network-methodologies}
+
+\subsection{Graph Neural Networks}
+\label{subsec:gnn}
+
+Graph neural networks (GNNs) are neural architectures designed to process data defined on
+graphs by repeatedly performing message passing. Each node updates its representation by
+aggregating transformed features from its neighbors. In each layer, a generic GNN computes
+\[
+h_i^{\ell+1}=\phi\Big(h_i^{\ell},\;
+\operatorname{AGG}_{j\in\mathcal{N}(i)}\psi(h_i^{\ell},h_j^{\ell},e_{ij})\Big),
+\]
+where $h_i^{\ell}$ is the node embedding at layer $\ell$, $e_{ij}$ is an optional edge
+feature, and $\operatorname{AGG}$ is a permutation-invariant operator such as summation or
+mean aggregation.
+
+In neural combinatorial optimization, classical backbones such as graph convolutional
+networks (GCNs) \citep{kipf2016semi} and graph attention networks (GATs)
+\citep{velickovic2017graph} primarily produce node embeddings. This is sufficient when the
+target variable is node-based, such as predicting whether a node is selected in the maximum
+independent set (MIS). However, for routing problems such as the TSP, the key latent variable
+is often edge-based, indicating whether an edge belongs to the tour. Consequently, a standard
+node-centric GNN requires additional structural mechanisms to reliably represent and predict
+edge decisions.
+
+\subsection{Anisotropic Graph Neural Networks}
+\label{subsec:agnn}
+
+Anisotropic graph neural networks (AGNNs) extend traditional message passing by maintaining
+both node and edge embeddings and by using edge gates so that information flow depends on the
+current edge state. This architecture is especially useful for diffusion-style denoising
+networks, where the model ingests noisy variables $x_t$, such as node states for MIS or edge
+states for TSP, and predicts the clean variables $x_0$.
+
+Let $h_i^{\ell}$ and $e_{ij}^{\ell}$ denote node and edge features at layer $\ell$, and let
+$t$ be a sinusoidal timestep embedding. A standard AGNN layer used in diffusion backbones
+first performs an anisotropic edge update:
+\[
+\hat{e}_{ij}^{\ell+1}=P^{\ell}e_{ij}^{\ell}+Q^{\ell}h_i^{\ell}+R^{\ell}h_j^{\ell}.
+\]
+The edges are then refined with residual multilayer perceptrons (MLPs) and timestep
+conditioning:
+\[
+e_{ij}^{\ell+1}
+=e_{ij}^{\ell}+\operatorname{MLP}_e(\operatorname{BN}(\hat{e}_{ij}^{\ell+1}))
++\operatorname{MLP}_t(t).
+\]
+
+The node update then uses edge-gated messages:
+\[
+h_i^{\ell+1}=h_i^{\ell}+\alpha\Big(
+\operatorname{BN}\big(U^{\ell}h_i^{\ell}
++\sum_{j\in\mathcal{N}(i)}
+\sigma(\hat{e}_{ij}^{\ell+1})\odot V^{\ell}h_j^{\ell}\big)\Big).
+\]
+Here $\sigma(\cdot)$ is a sigmoid gate and $\odot$ is the Hadamard product. Intuitively, each
+neighbor's message is filtered by the current edge embedding, allowing the network to
+emphasize or suppress interactions in a direction- and edge-dependent manner.
+
+Because AGNNs jointly model nodes and edges, they naturally support optimization tasks that
+require edge-variable prediction, such as the TSP. For these problems, $e_{ij}^{0}$ is
+initialized from the noisy edge variables $x_t$, and $h_i^{0}$ is set to positional or
+sinusoidal node features. The final network head then predicts denoised edge probabilities or
+values.
 
 \section{Diffusion Models for COP}
 \label{sec:diffusion-cop}
-% Heatmap parameterization, denoising schedule, decoding (greedy + 2-opt).
+
+\subsection{DIFUSCO}
+\label{subsec:difusco}
+
+DIFUSCO (Diffusion for Combinatorial Optimization) solves CO problems by casting a feasible
+solution as a binary structure, learning a diffusion-style denoising process to transform
+random noise into that structure, and finally applying a classical decoder, such as greedy
+decoding followed by 2-opt, to yield a valid tour or route \citep{sun2023difusco}.
+
+\subsubsection{Representation}
+\label{subsec:difusco-representation}
+
+DIFUSCO represents the target solution as a binary variable $x_0\in\{0,1\}^N$. For TSP,
+$x_0$ typically corresponds to edge decisions, indicating whether an edge is included in the
+tour. Thus, $N$ scales with the number of candidate edges.
+
+\subsubsection{Forward Process}
+\label{subsec:difusco-forward}
+
+A Markov chain gradually corrupts the optimal solution $x_0$ into random noise $x_T$ using a
+variance schedule $\{\beta_t\}_{t=1}^T$. In discrete diffusion, the solution $x$ is converted
+to a one-hot representation $\tilde{x}\in\{0,1\}^{N\times 2}$ and subjected to a categorical
+transition:
+\[
+q(x_t\mid x_{t-1}) = \mathrm{Cat}(x_t;\,p=\tilde{x}_{t-1}Q_t),\quad
+Q_t=\begin{pmatrix}
+1-\beta_t & \beta_t\\
+\beta_t & 1-\beta_t
+\end{pmatrix}.
+\]
+As $\prod_{t=1}^T(1-\beta_t)\approx 0$, the terminal distribution becomes near-uniform.
+
+For continuous diffusion on discrete data, the discrete solution $x_0\in\{0,1\}^N$ is
+rescaled to $\hat{x}_0\in\{-1,1\}^N$ and subjected to Gaussian corruption:
+\[
+q(\hat{x}_t\mid \hat{x}_{t-1})
+:= \mathcal{N}(\hat{x}_t;\sqrt{1-\beta_t}\,\hat{x}_{t-1},\,\beta_t I).
+\]
+This ensures that $\hat{x}_T$ approaches a standard Gaussian distribution when
+$\prod_{t=1}^T(1-\beta_t)\approx 0$.
+
+\subsubsection{Reverse Process}
+\label{subsec:difusco-reverse}
+
+DIFUSCO learns the reverse transitions defined by
+\[
+p_\theta(x_0) := \int p_\theta(x_{0:T})\,dx_{1:T},\quad
+p_\theta(x_{0:T}) = p(x_T)\prod_{t=1}^T p_\theta(x_{t-1}\mid x_t).
+\]
+This is achieved by optimizing the standard variational lower bound, which yields
+Kullback--Leibler (KL) divergence terms of the form
+\[
+D_{\mathrm{KL}}\big(q(x_{t-1}\mid x_t,x_0)\,\|\,p_\theta(x_{t-1}\mid x_t)\big).
+\]
+
+The neural network prediction target depends on the diffusion type. In discrete diffusion,
+the denoiser is trained to predict the clean variable $p_\theta(x_0\mid x_t)$. The reverse
+step is formed by substituting the prediction into the true posterior:
+\[
+p_\theta(x_{t-1}\mid x_t) \approx q(x_{t-1}\mid x_t,\hat{x}_0),\quad
+\hat{x}_0\sim p_\theta(x_0\mid x_t).
+\]
+In continuous diffusion, the denoiser predicts the Gaussian noise $\varepsilon_t$:
+\[
+\varepsilon_t
+= \frac{\hat{x}_t-\sqrt{\bar{\alpha}_t}\,\hat{x}_0}
+{\sqrt{1-\bar{\alpha}_t}}
+= f_\theta(\hat{x}_t,t),
+\]
+which is used to formulate a point estimate of $\hat{x}_0$ inside the Gaussian posterior for
+$\hat{x}_{t-1}$.
+
+\subsubsection{AGNN Denoiser}
+\label{subsec:difusco-agnn-denoiser}
+
+The conditional model $f_\theta(\cdot,t)$ is implemented using an edge-aware AGNN backbone
+with timestep conditioning. After sampling the denoised representation to obtain a continuous
+or probabilistic $x_0$, the model applies thresholding or quantization to map the heatmap back
+to the $\{0,1\}$ domain. Finally, a non-differentiable decoder, such as greedy edge selection,
+and optional local improvement heuristics, such as 2-opt, are applied to enforce hard
+feasibility constraints and minimize the final objective value.
 
 \section{Reinforcement Learning Fine-Tuning}
 \label{sec:rl-ft}
-% CADO: hybrid LoRA fine-tuning, REINFORCE, reward modes (SR vs LCR).
 
-\section{Related Work}
-\label{sec:related-work}
-% DifusCO, CADO, and closest baselines; gap your thesis fills.
+\subsection{CADO}
+\label{subsec:cado}
+
+While diffusion-based models such as DIFUSCO demonstrate strong performance using supervised
+learning (SL), this paradigm suffers from a fundamental objective mismatch. In SL, the neural
+network is trained to imitate optimal ground-truth solutions by minimizing surrogate losses,
+such as cross-entropy. However, minimizing this imitation loss does not guarantee minimizing
+the actual decoded solution cost.
+
+CADO (Cost-Aware Diffusion Solvers for Combinatorial Optimization through RL Fine-Tuning)
+analyzes this objective mismatch through two main deficiencies \citep{yoon2024cado}. The
+first is decoder-blindness: the SL objective is oblivious to the non-differentiable decoding
+heuristic $f_g$, such as greedy search or 2-opt, that projects the continuous heatmap into a
+discrete feasible solution. The second is cost-blindness: SL prioritizes structural similarity
+to the ground-truth solution over the actual objective value of the problem. Empirical results
+in CADO show that structural proximity to an optimal solution, measured by Hamming distance,
+can have near-zero correlation with the final decoded solution cost.
+
+To address these issues, CADO introduces a reinforcement learning (RL) fine-tuning framework
+that explicitly aligns the diffusion process with the true CO objective.
+
+\subsection{MDP Formulation}
+\label{subsec:cado-mdp}
+
+Instead of relying only on structural imitation, CADO directly optimizes the post-decoded
+solution cost by formulating the iterative diffusion denoising process as a Markov decision
+process (MDP). This formulation enables the model to be trained using the REINFORCE
+algorithm.
+
+Let the MDP be represented by the tuple $(\mathcal{S}, \mathcal{A}, P, \rho_0, R)$. The
+state $s_t\in\mathcal{S}$, action $a_t\in\mathcal{A}$, and reward function $R(s_t,a_t)$ at
+timestep $t$ are defined as
+\[
+s_t \triangleq (g, T-t, x_{T-t}), \quad a_t \triangleq x_{t-1},
+\]
+and
+\[
+R(s_t, a_t) \triangleq
+\begin{cases}
+-c_g(f_g(x_0)), & \text{if } t = T, \\
+0, & \text{otherwise.}
+\end{cases}
+\]
+Here, $g$ represents the problem instance, $c_g(\cdot)$ is the true cost function, and
+$f_g(\cdot)$ is the non-differentiable decoder. By evaluating the reward only at the final
+step, after the heatmap has been fully decoded, this formulation explicitly incorporates both
+the decoder's behavior and the true cost feedback, resolving decoder-blindness and
+cost-blindness.
+
+\subsection{Reward Strategies}
+\label{subsec:cado-reward-strategies}
+
+To stabilize RL training and reduce variance, CADO uses two reward formulation strategies.
+The standard reward (SR) uses the negative true solution cost directly as the reward signal.
+This label-free formulation enables the model to learn through trial-and-error exploration and
+can remain applicable even when labeled solutions are unavailable.
+
+The label-centered reward (LCR) uses information from the SL pre-training dataset without
+returning to pure imitation. It repurposes the ground-truth solution cost $b_D(g)$ as an
+instance-specific baseline and defines the reward as the negative optimality gap:
+\[
+R_t = -\big(c_g(f_g(x_0)) - b_D(g)\big).
+\]
+Because the baseline $b_D(g)$ depends only on the problem instance and is independent of the
+policy's actions, it serves as an unbiased baseline. Thus, the policy gradient remains
+consistent with true cost minimization even if the dataset labels are computationally
+suboptimal.
+
+\subsection{Hybrid Fine-Tuning}
+\label{subsec:cado-hybrid-ft}
+
+Applying RL fine-tuning naively to the large AGNN architectures used in diffusion models can
+be unstable and memory-intensive. To achieve parameter-efficient and stable adaptation, CADO
+employs a hybrid fine-tuning (Hybrid-FT) strategy.
+
+Hybrid-FT applies low-rank adaptation (LoRA) to the input layer and most backbone GNN layers.
+This preserves the robust features learned during SL pre-training while introducing only a
+small set of trainable low-rank matrices. At the same time, CADO applies selective layer
+fine-tuning (Selective-FT), in which all parameters are retrained, to the final GNN layer and
+the output layer. These layers are most directly responsible for final heatmap generation. The
+combination supports rapid initial convergence while maintaining sufficient expressive power
+for cost-aware adaptation.
+

@@ -1,0 +1,46 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\textwidth,
+  height=0.50\textwidth,
+  xlabel={Epoch},
+  ylabel={Assignment accuracy (\%)},
+  xmin=0,
+  xmax=52,
+  ymin=50,
+  ymax=85,
+  grid=both,
+  grid style={draw=gray!20},
+  axis y line*=left,
+  axis x line*=bottom,
+  legend style={draw=none, fill=none, at={(0.98,0.98)}, anchor=north east},
+]
+\addplot+[mark=o, thick] coordinates {
+  (1,81.89) (5,68.58) (10,60.76) (15,59.30)
+  (20,56.82) (25,60.26) (30,60.63) (35,57.62)
+  (40,54.22) (45,55.38) (50,55.75)
+};
+\addlegendentry{Assignment accuracy}
+\node[anchor=south west, font=\small] at (axis cs:1,81.89) {best 81.89\%};
+\end{axis}
+
+\begin{axis}[
+  width=0.86\textwidth,
+  height=0.50\textwidth,
+  xmin=0,
+  xmax=52,
+  ymin=0.075,
+  ymax=0.19,
+  axis y line*=right,
+  axis x line=none,
+  ylabel={Supervised loss},
+  legend style={draw=none, fill=none, at={(0.98,0.86)}, anchor=north east},
+]
+\addplot+[mark=square*, thick, gray] coordinates {
+  (1,0.1819) (2,0.1119) (3,0.1053) (4,0.1012)
+  (5,0.0978) (10,0.0944) (15,0.0889) (20,0.0874)
+  (25,0.0858) (30,0.0845) (35,0.0842) (40,0.0828)
+  (44,0.0800) (45,0.0852) (50,0.0839)
+};
+\addlegendentry{Train loss}
+\end{axis}
+\end{tikzpicture}

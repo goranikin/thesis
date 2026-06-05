@@ -1,33 +1,25 @@
-% main.tex — entry point for the thesis
+% main.tex — entry point for the thesis (SNU IE kor-ms format)
 %
 % BUILD (from thesis/):
 %   latexmk -pdf main.tex
-% (kotex in preamble provides Korean on the title page)
 %
 % ============================================================================
 % DOCUMENT SCHEME
 % ============================================================================
 %
-%  FRONT MATTER (roman page numbers)
-%  ├── title.tex           Title page
-%  ├── abstract.tex        Abstract + keywords
-%  ├── acknowledgments.tex Optional
-%  └── contents.tex        TOC, list of figures/tables
+%  FRONT MATTER (Roman / roman page numbers)
+%  ├── makefrontcover / makeapproval   Department cover and approval pages
+%  ├── abstract.tex                    Korean abstract (초록)
+%  └── contents.tex                    목차, 표 목차, 그림 목차
 %
 %  BODY (arabic page numbers)
-%  ├── 01_introduction     Motivation, problem, contributions, outline
-%  ├── 02_background       COP, solvers, diffusion, RL-FT, related work
-%  ├── 03_methodology      Architecture, SL, CADO, decoding, implementation
-%  ├── 04_experiments      Setup, data, results, ablations, discussion
-%  └── 05_conclusion        Summary, limitations, future work
+%  ├── 01_introduction … 05_conclusion
+%  └── appendix/
 %
 %  BACK MATTER
-%  ├── appendix/           Extra tables, configs, plots
-%  └── references.bib      Bibliography (natbib)
-%
-%  ASSETS
-%  ├── figures/            \includegraphics{figures/...}
-%  └── tables/             Optional standalone table fragments
+%  ├── references.bib      Inside bibpage environment
+%  ├── abstract_en.tex     English abstract
+%  └── acknowledgments.tex 감사의 글
 %
 % ============================================================================
 
@@ -35,13 +27,16 @@
 
 \begin{document}
 
-% --- Front matter ---
-\input{frontmatter/title}
+\pagenumbering{Roman}
+\makefrontcover
+\makeapproval
+
+\cleardoublepage
+\pagenumbering{roman}
+
 \input{frontmatter/abstract}
-\input{frontmatter/acknowledgments}
 \input{frontmatter/contents}
 
-% --- Body ---
 \cleardoublepage
 \pagenumbering{arabic}
 
@@ -51,11 +46,15 @@
 \input{chapters/04_experiments}
 \input{chapters/05_conclusion}
 
-% --- Back matter ---
 \appendix
 \input{appendix/implementation_details}
 
+\begin{bibpage}
 \bibliographystyle{plainnat}
 \bibliography{references}
+\end{bibpage}
+
+\input{frontmatter/abstract_en}
+\input{frontmatter/acknowledgments}
 
 \end{document}

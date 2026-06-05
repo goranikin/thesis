@@ -1,35 +1,63 @@
-\contentsline {chapter}{Abstract}{i}{chapter*.1}%
-\contentsline {chapter}{Acknowledgments}{ii}{chapter*.2}%
+\contentsline {chapter}{초록}{i}{chapter*.1}%
+\contentsline {chapter}{목차}{iv}{chapter*.2}%
+\contentsline {chapter}{표 목차}{v}{chapter*.3}%
+\contentsline {chapter}{그림 목차}{vi}{chapter*.4}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Problem Statement}{1}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Contributions}{1}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Thesis Outline}{1}{section.1.4}%
-\contentsline {chapter}{\numberline {2}Background}{2}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Combinatorial Optimization}{2}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Classical and Learning-Based Solvers}{2}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Diffusion Models for COP}{2}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Reinforcement Learning Fine-Tuning}{2}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Related Work}{2}{section.2.5}%
-\contentsline {chapter}{\numberline {3}Methodology}{3}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Overview}{3}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Model Architecture}{3}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Supervised Training}{3}{section.3.3}%
-\contentsline {section}{\numberline {3.4}CADO Fine-Tuning}{3}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Decoding and Evaluation}{3}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Implementation}{3}{section.3.6}%
-\contentsline {chapter}{\numberline {4}Experiments}{4}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Experimental Setup}{4}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Datasets}{4}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Baselines and Metrics}{4}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Main Results}{4}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Ablations}{4}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Discussion}{4}{section.4.6}%
-\contentsline {chapter}{\numberline {5}Conclusion}{5}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Summary}{5}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Limitations}{5}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Future Work}{5}{section.5.3}%
-\contentsline {chapter}{\numberline {A}Implementation Details}{6}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Configuration Reference}{6}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Hyperparameter Tables}{6}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Additional Plots}{6}{section.A.3}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Contributions}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Thesis Outline}{3}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Literature Review}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Optimization Problems}{4}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Combinatorial Optimization}{4}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Traveling Salesman Problem}{5}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Capacitated Vehicle Routing Problem}{5}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Multi-Depot Vehicle Routing Problem}{7}{subsection.2.1.4}%
+\contentsline {section}{\numberline {2.2}Classical and Learning-Based Solvers}{8}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Exact Solvers}{9}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Relaxation and Decomposition Methods}{9}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Heuristics and Metaheuristics}{10}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Learning-Assisted Solvers}{11}{subsection.2.2.4}%
+\contentsline {section}{\numberline {2.3}Neural Network Methodologies}{11}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Graph Neural Networks}{11}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Anisotropic Graph Neural Networks}{12}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Diffusion Models for COP}{13}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}DIFUSCO}{13}{subsection.2.4.1}%
+\contentsline {subsubsection}{Representation}{14}{section*.5}%
+\contentsline {subsubsection}{Forward Process}{14}{section*.6}%
+\contentsline {subsubsection}{Reverse Process}{15}{section*.7}%
+\contentsline {subsubsection}{AGNN Denoiser}{16}{section*.8}%
+\contentsline {section}{\numberline {2.5}Reinforcement Learning Fine-Tuning}{16}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}CADO}{16}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}MDP Formulation}{17}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Reward Strategies}{18}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Hybrid Fine-Tuning}{18}{subsection.2.5.4}%
+\contentsline {chapter}{\numberline {3}Methodology}{20}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{20}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Model Architecture}{21}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Supervised Training}{22}{section.3.3}%
+\contentsline {section}{\numberline {3.4}CADO Fine-Tuning}{22}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Decoding and Evaluation}{23}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Implementation}{24}{section.3.6}%
+\contentsline {chapter}{\numberline {4}Experiments}{26}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Experimental Setup}{26}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Datasets}{26}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Baselines and Metrics}{27}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Main Results}{28}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Ablations}{29}{section.4.5}%
+\contentsline {paragraph}{Effect of 2-opt on CVRP.}{29}{section*.14}%
+\contentsline {paragraph}{Reward mode.}{30}{section*.15}%
+\contentsline {paragraph}{Training duration.}{30}{section*.16}%
+\contentsline {paragraph}{Parameter-efficient fine-tuning.}{31}{section*.17}%
+\contentsline {section}{\numberline {4.6}Discussion}{31}{section.4.6}%
+\contentsline {chapter}{\numberline {5}Conclusion}{33}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Summary}{33}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Limitations}{34}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Future Work}{35}{section.5.3}%
+\contentsline {chapter}{\numberline {A}Implementation Details}{37}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Configuration Reference}{37}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Hyperparameter Tables}{37}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Additional Plots}{37}{section.A.3}%
+\contentsline {chapter}{참고문헌}{38}{section*.18}%
+\contentsline {chapter}{Abstract}{40}{appendix*.20}%
+\contentsline {chapter}{감사의 글}{41}{section*.21}%

@@ -1,41 +1,97 @@
-% Shared preamble — edit metadata and packages here.
+% Shared preamble — SNU IE department thesis format (kor-ms).
+%
+% BUILD (from thesis/):
+%   latexmk -pdf main.tex
 
-\documentclass[11pt,a4paper,openany]{report}
+\RequirePackage{fix-cm}
 
-\usepackage{kotex}
-\usepackage{lmodern}
-\usepackage{microtype}
-\usepackage{geometry}
-\geometry{margin=2.5cm}
+\documentclass[oneside, ko, ms]{snuthesis_utf8_kor}
 
-\usepackage{amsmath,amssymb,amsfonts}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Table of contents (Korean labels)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[titles]{tocloft}
+\usepackage{amsmath,amssymb,amsthm,kotex,color}
 \usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{hyperref}
-\usepackage{cleveref}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{algpseudocode,algorithm,algorithmicx}
+\usepackage{setspace}
+\usepackage{array}
+\usepackage{romanbar}
+\usepackage{pgfplots}
+\usepackage{caption}
 \usepackage{subcaption}
+\usepackage{booktabs,multirow}
+\usepackage{threeparttable}
+\usepackage{rotating}
+\usepackage{comment}
 \usepackage[numbers,sort&compress]{natbib}
 
+\pgfplotsset{compat=1.18}
+
+\makeatletter
+\renewcommand\cftchappresnum{제 ~}
+\renewcommand\cftchapaftersnum{ ~ 장}
+\renewcommand\cftfigpresnum{그림 ~}
+\renewcommand\cfttabpresnum{표 ~}
+\renewcommand{\algorithmicforall}{\textbf{foreach}}
+
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{Proposition}{Proposition}
+\newtheorem{remark}{Remark}[chapter]
+\newtheorem{example}{Example}[chapter]
+
+\usepackage[pdftex,bookmarks=true]{hyperref}
 \hypersetup{
   colorlinks=true,
   linkcolor=black,
   citecolor=blue,
   urlcolor=blue,
 }
+\usepackage{cleveref}
 
-% --- Thesis metadata ---
-\newcommand{\thesistitle}{Diffusion Models for Combinatorial Optimization}
-\newcommand{\thesisauthor}{Janghyeok Choi}
-\newcommand{\thesisauthornameko}{최장혁}
-\newcommand{\thesisstudentid}{2020-12053}
-\newcommand{\thesisdegree}{Bachelor of Science in Industrial Engineering}
-\newcommand{\thesisdepartment}{Department of Industrial Engineering}
-\newcommand{\thesisuniversity}{Seoul National University}
-\newcommand{\thesisyear}{2026}
-\newcommand{\thesisadvisor}{Advisor Name}  % fill in when known
+\makeatother
 
-\title{\thesistitle}
-\author{\thesisauthor}
-\date{\thesisyear}
+\newlength{\mytmplen}
+\settowidth{\mytmplen}{\bfseries\cftchappresnum\cftchapaftersnum}
+\addtolength{\cftchapnumwidth}{\mytmplen}
+\settowidth{\mytmplen}{\bfseries\cftfigpresnum\cftfigaftersnum}
+\addtolength{\cftfignumwidth}{\mytmplen}
+\settowidth{\mytmplen}{\bfseries\cfttabpresnum\cfttabaftersnum}
+\addtolength{\cfttabnumwidth}{\mytmplen}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Thesis metadata — fill in before submission
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{조합 최적화를 위한 확산 모델}
+\title*{Diffusion Models for Combinatorial Optimization}
+\titlen{Diffusion Models for Combinatorial Optimization}
+
+\author{Janghyeok Choi}
+\author*{최장혁}
+\authorn{최~장~혁}
+\phonenumber{010-0000-0000}
+\studentnumber{2020-12053}
+
+\advisor{지도교수 성함}        % Korean name on approval page
+\advisor*{Advisor Name}        % English name (optional)
+\advisorn{지~도~교~수}          % Spaced Korean name for approval page
+
+\graddate{2026~년~~2~월}
+\submissiondate{2026~년~~1~월}
+\submissiondaten{2026~년~~1~월~~15~일}
+\approvaldate{2026~년~~2~월}
+
+\committeemembers%
+{위원장 성함}%
+{지도교수 성함}%
+{위원 성함}%
+{}%
+{}%
+
+\setlength{\committeenameunderlinelength}{5cm}

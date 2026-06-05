@@ -30,7 +30,21 @@ methods to enhance the capabilities of diffusion-based models in solving CO prob
 
 \section{Problem Statement}
 \label{sec:problem-statement}
-% TSP and CVRP (optionally MDVRP); objective (tour cost / gap to optimum).
+Diffusion-based models generate outputs in the form of a heatmap, representing probability
+distributions over the solution space. Specifically, discrete diffusion models exploit a
+Bernoulli distribution. To yield a final, valid solution, this heatmap must be decoded subject
+to hard problem constraints. However, this decoding process is a primary bottleneck that
+degrades model performance, as the models are traditionally oblivious to the non-differentiable
+decoding mechanism and the problem's strict constraints \citep{yoon2024cado}. In CADO, the authors
+propose a decoder-aware reinforcement learning approach to align heatmap generation explicitly
+with the decoding process.
+
+Although CADO successfully introduces decoding awareness to heatmap-based models, its
+application is restricted to the TSP and MIS, which feature relatively simpler structural
+constraints compared to other CO problems. In this paper, we focus on capacitated vehicle
+routing problems (CVRPs) and multi-depot vehicle routing problems (MDVRPs). These variants
+possess significantly more complex constraints within their structure and represent critical
+challenges in real-world logistics and supply chain management.
 
 \section{Contributions}
 \label{sec:contributions}

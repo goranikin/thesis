@@ -1,6 +1,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Overview of the proposed training and evaluation pipeline for diffusion-based neural solvers. The pipeline consists of supervised denoising training followed by optional reinforcement learning (CADO-style) fine-tuning. }}{20}{figure.caption.9}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces TSP-50 validation gap during the extended CADO run. The dashed line shows the supervised checkpoint used to initialize fine-tuning.}}{29}{figure.caption.11}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces CVRP-50 validation gap for supervised decoding variants and CADO fine-tuning. 2-opt improves the best supervised checkpoint, while CADO reaches a lower best gap but later collapses.}}{30}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces MDVRP-50 assignment accuracy and supervised loss. The loss decreases steadily, but assignment accuracy degrades after the first validation point.}}{31}{figure.caption.13}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

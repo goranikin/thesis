@@ -1,0 +1,32 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\textwidth,
+  height=0.48\textwidth,
+  xlabel={Epoch},
+  ylabel={Optimality gap (\%)},
+  xmin=40,
+  xmax=1010,
+  ymin=3.8,
+  ymax=5.45,
+  grid=both,
+  grid style={draw=gray!20},
+  legend style={draw=none, fill=none, at={(0.98,0.98)}, anchor=north east},
+]
+\addplot+[mark=o, thick] coordinates {
+  (50,4.771) (100,4.627) (150,4.364) (200,4.789)
+  (250,4.503) (300,4.943) (350,4.649) (400,4.988)
+  (450,4.561) (500,4.328) (550,4.737) (600,4.339)
+  (650,4.599) (700,4.362) (750,4.505) (800,4.545)
+  (850,4.948) (900,4.489) (950,4.813) (970,3.955)
+  (990,3.959) (1000,4.031)
+};
+\addlegendentry{CADO}
+
+\addplot+[mark=none, dashed, thick] coordinates {
+  (40,4.46) (1010,4.46)
+};
+\addlegendentry{SL baseline}
+
+\node[anchor=south east, font=\small] at (axis cs:970,3.955) {best 3.96\%};
+\end{axis}
+\end{tikzpicture}

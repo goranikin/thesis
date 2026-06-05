@@ -1,0 +1,42 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\textwidth,
+  height=0.52\textwidth,
+  xlabel={Epoch},
+  ylabel={Optimality gap (\%)},
+  xmin=0,
+  xmax=1010,
+  ymin=18,
+  ymax=50,
+  grid=both,
+  grid style={draw=gray!20},
+  legend style={draw=none, fill=none, at={(0.02,0.98)}, anchor=north west},
+]
+\addplot+[mark=o, thick] coordinates {
+  (1,29.98) (5,29.98) (10,31.17) (15,36.68)
+  (20,32.74) (25,37.59) (30,39.72) (35,33.41)
+  (40,33.04) (45,32.97) (50,33.66)
+};
+\addlegendentry{SL, greedy}
+
+\addplot+[mark=square*, thick] coordinates {
+  (1,31.20) (5,27.39) (10,25.96) (15,27.36)
+  (20,30.19) (25,30.82) (30,33.92) (35,34.75)
+  (40,34.12) (45,35.09) (50,35.51)
+};
+\addlegendentry{SL, greedy + 2-opt}
+
+\addplot+[mark=triangle*, thick] coordinates {
+  (50,25.73) (100,25.41) (150,24.59) (200,25.01)
+  (250,25.97) (300,25.02) (350,24.66) (400,21.85)
+  (450,21.83) (470,20.24) (500,23.38) (550,25.14)
+  (600,24.81) (650,25.61) (700,25.23) (750,27.63)
+  (800,47.37) (850,42.15) (900,41.48) (950,39.63)
+  (1000,47.16)
+};
+\addlegendentry{CADO}
+
+\node[anchor=south west, font=\small] at (axis cs:470,20.24) {best 20.24\%};
+\node[anchor=south west, font=\small] at (axis cs:790,47.37) {late collapse};
+\end{axis}
+\end{tikzpicture}
