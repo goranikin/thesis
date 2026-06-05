@@ -1,6 +1,6 @@
 defaults:
   - data: tsp50
-  - model: small
+  - model: paper
   - diffusion: categorical
   - training: default
   - inference: default

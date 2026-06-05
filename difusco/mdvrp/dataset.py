@@ -320,6 +320,11 @@ class MDVRPDataset(Dataset):
         edge_mask_t = torch.from_numpy(edge_mask).float()
 
         # Per-instance metadata needed by the decoder / trainer at val time.
+        # ``n_bipartite_edges`` and ``n_total_edges`` are needed by the per-customer
+        # K-way softmax loss in training_step so it can slice out the bipartite
+        # portion of the super-graph's edge logits per instance.
+        n_bipartite_edges = int(bipartite_src.shape[0])  # = 2 * K * N
+        n_total_edges = int(edge_src.shape[0])
         meta = {
             "n_depots": K,
             "n_customers": N,
@@ -327,6 +332,8 @@ class MDVRPDataset(Dataset):
             "num_vehicles_per_depot": parsed["num_vehicles_per_depot"],
             "gt_assignment": torch.from_numpy(gt_assignment).long(),
             "demands": torch.from_numpy(demands).long(),
+            "n_bipartite_edges": n_bipartite_edges,
+            "n_total_edges": n_total_edges,
         }
 
         return node_feat_t, edge_index, edge_dist_t, edge_label_t, edge_mask_t, meta

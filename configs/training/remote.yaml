@@ -1,8 +1,8 @@
-epochs: 50
+epochs: 20
 lr: 2e-4
 weight_decay: 1e-4
 dropout: 0.0
-batch_size: 64
+batch_size: 128
 num_workers: 8
 eval_every: 5
 log_interval: 100

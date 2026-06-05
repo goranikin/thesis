@@ -1,6 +1,6 @@
 defaults:
   - data: tsp50
-  - model: small
+  - model: paper
   - diffusion: categorical
   - _self_
 
@@ -35,7 +35,7 @@ cado:
 
   init_noise: bernoulli_half
 
-  epochs: 1000 # paper: 3000 (TSP-100);
+  epochs: 500 # paper: 3000 (TSP-100);
   samples_per_epoch: 128
   batch_size: 32
 

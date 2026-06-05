@@ -33,7 +33,7 @@ cado:
   M_eval: 25
   schedule_type: cosine
 
-  epochs: 1000
+  epochs: 500
   samples_per_epoch: 128
   batch_size: 32
 

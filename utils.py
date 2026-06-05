@@ -13,8 +13,10 @@ _RUN_DIR_RE = re.compile(r"^([a-z0-9_]+)_(\d{8}_\d{6})$")
 
 DIFUSCO_TSP = "difusco_tsp"
 DIFUSCO_CVRP = "difusco_cvrp"
+DIFUSCO_MDVRP = "difusco_mdvrp"
 CADO_TSP = "cado_tsp"
 CADO_CVRP = "cado_cvrp"
+CADO_MDVRP = "cado_mdvrp"
 
 BEST_MODEL = "best_model.pt"
 LAST_MODEL = "last_model.pt"

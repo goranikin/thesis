@@ -9,7 +9,7 @@ wandb:
   mode: online
   run_name: null
 
-data_path: ./data/mdvrp50_pyvrp.txt
+data_path: ./data/mdvrp10-10x5-5_64000_pyvrp.txt
 checkpoint_dir: ./checkpoints
 seed: 42
 
@@ -20,7 +20,7 @@ cado:
 
   algorithm: reinforce
   reward_mode: SR
-  use_2opt_in_reward: false   # not applicable to assignment heatmap
+  use_2opt_in_reward: false # not applicable to assignment heatmap
 
   lora_rank: 2
   selective_layers: 1

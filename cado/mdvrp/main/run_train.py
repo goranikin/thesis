@@ -27,15 +27,12 @@ from cado.mdvrp.models.model import CADOMDVRP
 from cado.mdvrp.types import CADOMDVRPRunConfig
 from cado.models.lora import apply_hybrid_ft, trainable_parameter_summary
 from difusco.mdvrp.dataset import MDVRPDataset, collate_mdvrp
-from utils import best_model_path, resolve_pretrained, run_dir, select_device
+from utils import CADO_MDVRP, best_model_path, resolve_pretrained, run_dir, select_device
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 _CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
-
-# Locally-defined tag because utils.py only declares CADO_TSP / CADO_CVRP.
-CADO_MDVRP = "cado_mdvrp"
 
 
 def _set_seed(seed: int) -> None:
