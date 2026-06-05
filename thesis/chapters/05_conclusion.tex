@@ -4,76 +4,32 @@
 \section{Summary}
 \label{sec:summary}
 
-This thesis investigated diffusion-based neural solvers for combinatorial optimization, with
-a focus on routing problems whose feasible solutions must satisfy hard structural constraints.
-The central motivation was the mismatch between supervised heatmap learning and the final
-decoded solution quality. A diffusion model may predict labels accurately under a surrogate
-loss, but the final output is produced only after a non-differentiable decoder enforces
-problem constraints.
+This thesis investigated diffusion-based neural solvers for combinatorial optimization, with a focus on routing problems whose feasible solutions must satisfy hard structural constraints. The central motivation was the mismatch between supervised heatmap learning and the final decoded solution quality. A diffusion model may predict labels accurately under a surrogate loss, but the final output is produced only after a non-differentiable decoder enforces problem constraints.
 
-To study this issue, the thesis implemented and evaluated a DIFUSCO-style supervised
-diffusion solver, together with CADO-style reinforcement learning fine-tuning for TSP and
-CVRP. The implementation also includes an assignment-level MDVRP extension. TSP and CVRP use
-edge heatmaps followed by greedy decoding and 2-opt refinement, while MDVRP predicts
-customer--depot assignments as a first step toward full multi-depot route generation.
+To study this issue, the thesis implemented and evaluated a DIFUSCO-style supervised diffusion solver, together with CADO-style reinforcement learning fine-tuning for TSP and CVRP. The implementation also includes an assignment-level MDVRP extension. TSP and CVRP use edge heatmaps followed by greedy decoding and 2-opt refinement, while MDVRP predicts customer--depot assignments as a first step toward full multi-depot route generation. 
 
-The experiments show that CADO fine-tuning can improve the best validation checkpoint over
-supervised training. On TSP-50, the supervised baseline achieved a 4.46\% validation gap, and
-CADO improved the best observed gap to 3.77\% in the 100-epoch pilot. On CVRP-50, supervised
-training with 2-opt achieved a best gap of 25.96\%, while CADO improved the best checkpoint to
-20.24\%. These results indicate that directly optimizing decoded cost can help align diffusion
-heatmaps with routing objectives.
+The experiments show that CADO fine-tuning can improve the best validation checkpoint over supervised training. On TSP-50, the supervised baseline achieved a 4.46\% validation gap, and CADO improved the best observed gap to 3.77\% in the 100-epoch pilot. On CVRP-50, supervised training with 2-opt achieved a best gap of 25.96\%, while CADO improved the best checkpoint to 20.24\%. These results indicate that directly optimizing decoded cost can help align diffusion heatmaps with routing objectives.
 
-At the same time, the experiments also reveal instability. CVRP CADO collapsed late in
-training, ending much worse than its best checkpoint. The MDVRP supervised assignment model
-showed decreasing training loss but deteriorating validation assignment accuracy. These
-findings reinforce the main thesis claim: for constrained routing problems, the decoder and
-objective must be treated as central parts of the learning system rather than as afterthoughts.
+At the same time, the experiments also reveal instability. CVRP CADO collapsed late in training, ending much worse than its best checkpoint. The MDVRP supervised assignment model showed decreasing training loss but deteriorating validation assignment accuracy. These findings reinforce the main thesis claim: for constrained routing problems, the decoder and objective must be treated as central parts of the learning system rather than as afterthoughts.
 
 \section{Limitations}
 \label{sec:limitations}
 
-This work has several limitations. First, the achieved gaps are still far from classical
-solver quality, especially for CVRP. The current heatmap decoder produces feasible CVRP
-solutions, but the best CVRP gap remains around 20\%, indicating that the learned heatmap and
-the greedy decoder are not yet strong enough for competitive routing performance.
+This work has several limitations. First, the achieved gaps are still far from classical solver quality, especially for CVRP. The current heatmap decoder produces feasible CVRP solutions, but the best CVRP gap remains around 20\%, indicating that the learned heatmap and the greedy decoder are not yet strong enough for competitive routing performance.
 
-Second, the validation protocol is limited by subset size. Some CADO experiments use only
-100--200 validation instances, so individual best checkpoints may include sampling noise. The
-reported trends are useful for development, but publication-quality numbers should be
-computed on larger fixed test sets.
+Second, the validation protocol is limited by subset size. Some CADO experiments use only 100--200 validation instances, so individual best checkpoints may include sampling noise. The reported trends are useful for development, but publication-quality numbers should be computed on larger fixed test sets.
 
-Third, the MDVRP implementation does not yet solve the full multi-depot routing problem. It
-predicts depot assignments and checks aggregate capacity, but route construction inside each
-depot is not integrated into the main evaluation loop. Therefore, MDVRP results should be
-interpreted as assignment-level diagnostics rather than full MDVRP performance.
+Third, the MDVRP implementation does not yet solve the full multi-depot routing problem. It predicts depot assignments and checks aggregate capacity, but route construction inside each depot is not integrated into the main evaluation loop. Therefore, MDVRP results should be interpreted as assignment-level diagnostics rather than full MDVRP performance.
 
-Finally, CADO fine-tuning is sensitive to reward design, learning rate, training length, and
-checkpoint selection. The CVRP run demonstrates that a promising mid-training checkpoint can
-be followed by severe degradation. This makes early stopping and more robust reward
-normalization necessary for reliable use.
+Finally, CADO fine-tuning is sensitive to reward design, learning rate, training length, and checkpoint selection. The CVRP run demonstrates that a promising mid-training checkpoint can be followed by severe degradation. This makes early stopping and more robust reward normalization necessary for reliable use.
 
 \section{Future Work}
 \label{sec:future-work}
 
-Future work should first strengthen the evaluation protocol. The best TSP and CVRP CADO
-checkpoints should be re-evaluated on larger fixed validation and test subsets, and all
-reported comparisons should use identical data splits. Validation-based early stopping should
-be incorporated directly into the training procedure.
+Future work should first strengthen the evaluation protocol. The best TSP and CVRP CADO checkpoints should be re-evaluated on larger fixed validation and test subsets, and all reported comparisons should use identical data splits. Validation-based early stopping should be incorporated directly into the training procedure.
 
-Second, the CVRP decoder and reward should be improved. The current greedy decoder with
-per-route 2-opt is feasible but leaves substantial gap. Better route construction, stronger
-local search, or integration with route-level classical heuristics may reduce the gap before
-and after CADO fine-tuning.
+Second, the CVRP decoder and reward should be improved. The current greedy decoder with per-route 2-opt is feasible but leaves substantial gap. Better route construction, stronger local search, or integration with route-level classical heuristics may reduce the gap before and after CADO fine-tuning.
 
-Third, MDVRP should be extended from assignment prediction to full route generation. One
-natural direction is a two-stage pipeline: first predict depot assignments, then solve or
-learn a CVRP subproblem for each depot. A more ambitious direction is a unified heatmap over
-both assignment and routing decisions with a decoder that enforces depot, capacity, and route
-constraints jointly.
+Third, MDVRP should be extended from assignment prediction to full route generation. One natural direction is a two-stage pipeline: first predict depot assignments, then solve or learn a CVRP subproblem for each depot. A more ambitious direction is a unified heatmap over both assignment and routing decisions with a decoder that enforces depot, capacity, and route constraints jointly.
 
-Finally, CADO training should be made more stable. Promising directions include entropy
-regularization, PPO-style clipped updates, adaptive reward normalization, shorter schedules
-with early stopping, and reward functions that include the same local-search operations used
-at evaluation time. These changes would better align the training objective with the final
-decoded solutions while reducing the instability observed in long CVRP fine-tuning runs.
+Finally, CADO training should be made more stable. Promising directions include entropy regularization, PPO-style clipped updates, adaptive reward normalization, shorter schedules with early stopping, and reward functions that include the same local-search operations used at evaluation time. These changes would better align the training objective with the final decoded solutions while reducing the instability observed in long CVRP fine-tuning runs. 

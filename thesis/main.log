@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.29)  5 JUN 2026 14:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.29)  5 JUN 2026 15:46
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1021,12 +1021,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 3--9
 \tf@toc=\write6
 \openout6 = `main.toc'.
 
- [4] (./main.lot
-Overfull \hbox (1.36737pt too wide) in paragraph at lines 5--5
- [][] [][][]\OT1/cmr/m/n/10.95 Summary of main ex-per-i-men-tal re-sults. Lower gap is bet-ter; higher 
- []
-
-)
+ [4] (./main.lot)
 \tf@lot=\write7
 \openout7 = `main.lot'.
 
@@ -1034,8 +1029,8 @@ Overfull \hbox (1.36737pt too wide) in paragraph at lines 5--5
 
 
 ] (./main.lof
-Overfull \hbox (5.41272pt too wide) in paragraph at lines 4--4
- \OT1/cmr/m/n/10.95 vised de-nois-ing train-ing fol-lowed by op-tional re-in-force-ment learn- 
+Overfull \hbox (1.63863pt too wide) in paragraph at lines 6--6
+ [][] [][][]\OT1/cmr/m/n/10.95 Improvement af-ter CADO-style RL fine-tuning. TSP and CVRP 
  []
 
 )
@@ -1072,61 +1067,53 @@ Overfull \hbox (12.58989pt too wide) in paragraph at lines 389--397
 
 [16] [17] [18]) (./chapters/03_methodology.tex [19]
 Chapter 3.
-<./figures/pipeline.png, id=509, 1541.76pt x 1027.84pt>
+<./figures/pipeline.png, id=515, 1541.76pt x 1027.84pt>
 File: ./figures/pipeline.png Graphic file (type png)
 <use ./figures/pipeline.png>
-Package pdftex.def Info: ./figures/pipeline.png  used on input line 14.
+Package pdftex.def Info: ./figures/pipeline.png  used on input line 13.
 (pdftex.def)             Requested size: 338.59021pt x 225.71773pt.
 [20
 
- <./figures/pipeline.png (PNG copy)>] [21] [22] [23]
-Overfull \hbox (4.31355pt too wide) in paragraph at lines 114--118
-[]\OT1/cmr/m/n/10.95 MDVRP de-cod-ing op-er-ates at the as-sign-ment level. It av-er-ages di-rected customer--
- []
-
-) (./chapters/04_experiments.tex [24] [25]
+] [21 <./figures/pipeline.png (PNG copy)>] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32]) (./chapters/04_experiments.tex [33]
 Chapter 4.
 
-Overfull \hbox (0.51274pt too wide) in paragraph at lines 7--11
+Overfull \hbox (0.51274pt too wide) in paragraph at lines 7--8
 []\OT1/cmr/m/n/10.95 The ex-per-i-ments eval-u-ate whether diffusion-based heatmap solvers can be trained
  []
 
 
-Overfull \hbox (6.59607pt too wide) in paragraph at lines 24--29
+Overfull \hbox (6.59607pt too wide) in paragraph at lines 14--19
 []\OT1/cmr/m/n/10.95 The datasets con-sist of syn-thetic Eu-clidean rout-ing in-stances with solver-generated
  []
 
-[26
+[34
 
-]
-Overfull \hbox (7.39143pt too wide) in paragraph at lines 44--49
-\OT1/cmr/m/n/10.95 The de-coded length $\OML/cmm/m/it/10.95 L[]$ \OT1/cmr/m/n/10.95 is mea-sured af-ter greedy de-cod-ing and 2-opt post-processing.
- []
-
-
-Overfull \hbox (23.22478pt too wide) in paragraph at lines 58--70
+] [35] (./figures/rl_delta_summary.tex
+Package pgfplots info on input line 18: Using 'lua backend=false' for axis: x coord trafo unsupported.
+)
+Overfull \hbox (1.65361pt too wide) in paragraph at lines 25--59
  [][] 
  []
 
-[27] (./figures/tsp_cado_gap.tex) (./figures/cvrp_validation_gap.tex) [28] (./figures/mdvrp_assignment_accuracy.tex) [29] [30] [31]) (./chapters/05_conclusion.tex [32]
+[36] [37] [38]) (./chapters/05_conclusion.tex [39]
 Chapter 5.
-[33
+[40
 
 ]
-Overfull \hbox (4.16568pt too wide) in paragraph at lines 41--45
+Overfull \hbox (4.16568pt too wide) in paragraph at lines 20--21
 \OT1/cmr/m/n/10.95 clude sam-pling noise. The re-ported trends are use-ful for de-vel-op-ment, but publication-
  []
 
-[34]) [35] (./appendix/implementation_details.tex [36]
+[41]) [42] (./appendix/implementation_details.tex [43]
 Appendix A.
-) [37
+) [44
 
-] (./main.bbl [38
+] (./main.bbl [45
 
 
-]) (./frontmatter/abstract_en.tex [39] [40
+]) (./frontmatter/abstract_en.tex [46] [47
 
-]) (./frontmatter/acknowledgments.tex) [41
+]) (./frontmatter/acknowledgments.tex) [48
 
 ] (./main.aux)
  ***********
@@ -1134,21 +1121,21 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 99186F0F5A1BB2154090AEC738A3C489;7790.
+(rerunfilecheck)             Checksum: F109BCA990E55706E704F0CC20A2CCB5;8474.
  ) 
 Here is how much of TeX's memory you used:
- 39614 strings out of 467525
- 923426 string characters out of 5418982
- 1454334 words of memory out of 5000000
- 67653 multiletter control sequences out of 15000+600000
- 668227 words of font info for 182 fonts, out of 8000000 for 9000
+ 39606 strings out of 467525
+ 923194 string characters out of 5418982
+ 1436334 words of memory out of 5000000
+ 67642 multiletter control sequences out of 15000+600000
+ 669280 words of font info for 187 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 122i,19n,124p,786b,2350s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbac.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbad.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbae.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbb8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbb9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbba.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbbb.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbbc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc0.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbcc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbcd.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbd4.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbd5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmac.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmad.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmae.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb1.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb2.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb3.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmba.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbb.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbd.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbe.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc0.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc1.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc2.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcd.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcf.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd0.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd1.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd4.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on main.pdf (49 pages, 3406147 bytes).
+ 122i,12n,124p,914b,2438s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbac.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbad.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbae.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbb8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbb9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbba.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbbb.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbbc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc0.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbc8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbcc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbcd.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbd4.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjbd5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmac.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmad.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmae.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb1.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb2.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb3.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmb9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmba.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbb.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbd.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmbe.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc0.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc1.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc2.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmc9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcc.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcd.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmcf.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd0.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd1.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd4.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/nanumtype1/nanummjmd6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
+Output written on main.pdf (56 pages, 3425763 bytes).
 PDF statistics:
- 911 PDF objects out of 1000 (max. 8388607)
- 721 compressed objects within 8 object streams
- 130 named destinations out of 1000 (max. 500000)
- 458 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 953 PDF objects out of 1000 (max. 8388607)
+ 754 compressed objects within 8 object streams
+ 137 named destinations out of 1000 (max. 500000)
+ 474 words of extra memory for PDF output out of 10000 (max. 10000000)
 

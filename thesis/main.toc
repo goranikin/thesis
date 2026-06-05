@@ -34,30 +34,32 @@
 \contentsline {subsection}{\numberline {2.5.4}Hybrid Fine-Tuning}{18}{subsection.2.5.4}%
 \contentsline {chapter}{\numberline {3}Methodology}{20}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Overview}{20}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Model Architecture}{21}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Supervised Training}{22}{section.3.3}%
-\contentsline {section}{\numberline {3.4}CADO Fine-Tuning}{22}{section.3.4}%
-\contentsline {section}{\numberline {3.5}Decoding and Evaluation}{23}{section.3.5}%
-\contentsline {section}{\numberline {3.6}Implementation}{24}{section.3.6}%
-\contentsline {chapter}{\numberline {4}Experiments}{26}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Experimental Setup}{26}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Datasets}{26}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Baselines and Metrics}{27}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Main Results}{28}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Ablations}{29}{section.4.5}%
-\contentsline {paragraph}{Effect of 2-opt on CVRP.}{29}{section*.14}%
-\contentsline {paragraph}{Reward mode.}{30}{section*.15}%
-\contentsline {paragraph}{Training duration.}{30}{section*.16}%
-\contentsline {paragraph}{Parameter-efficient fine-tuning.}{31}{section*.17}%
-\contentsline {section}{\numberline {4.6}Discussion}{31}{section.4.6}%
-\contentsline {chapter}{\numberline {5}Conclusion}{33}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Summary}{33}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Limitations}{34}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Future Work}{35}{section.5.3}%
-\contentsline {chapter}{\numberline {A}Implementation Details}{37}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Configuration Reference}{37}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Hyperparameter Tables}{37}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Additional Plots}{37}{section.A.3}%
-\contentsline {chapter}{참고문헌}{38}{section*.18}%
-\contentsline {chapter}{Abstract}{40}{appendix*.20}%
-\contentsline {chapter}{감사의 글}{41}{section*.21}%
+\contentsline {section}{\numberline {3.2}Binary Solution Representation}{22}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Discrete Diffusion Training}{23}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Graph Denoising Architecture}{25}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Problem-Specific Decoding}{27}{section.3.5}%
+\contentsline {section}{\numberline {3.6}CADO-Style Reinforcement Learning Fine-Tuning}{28}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Hybrid Fine-Tuning Strategy}{31}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Evaluation Metrics}{32}{section.3.8}%
+\contentsline {chapter}{\numberline {4}Experiments}{34}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Experimental Setup}{34}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Datasets}{34}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Baselines and Metrics}{35}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Main Results}{36}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Ablations}{37}{section.4.5}%
+\contentsline {paragraph}{Effect of 2-opt on CVRP.}{37}{section*.12}%
+\contentsline {paragraph}{Reward mode.}{37}{section*.13}%
+\contentsline {paragraph}{Training duration.}{38}{section*.14}%
+\contentsline {paragraph}{Parameter-efficient fine-tuning.}{38}{section*.15}%
+\contentsline {section}{\numberline {4.6}Discussion}{38}{section.4.6}%
+\contentsline {chapter}{\numberline {5}Conclusion}{40}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Summary}{40}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Limitations}{41}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Future Work}{42}{section.5.3}%
+\contentsline {chapter}{\numberline {A}Implementation Details}{44}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Configuration Reference}{44}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Hyperparameter Tables}{44}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Additional Plots}{44}{section.A.3}%
+\contentsline {chapter}{참고문헌}{45}{section*.16}%
+\contentsline {chapter}{Abstract}{47}{appendix*.18}%
+\contentsline {chapter}{감사의 글}{48}{section*.19}%
