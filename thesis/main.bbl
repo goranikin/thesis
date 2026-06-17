@@ -5,15 +5,12 @@
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Applegate et~al.(2011)Applegate, Bixby, Chv{\'a}tal, and
-  Cook]{applegate2006traveling}
+\bibitem[Applegate et~al.(2011)Applegate, Bixby, Chv{\'a}tal, and Cook]{applegate2006traveling}
 David~L. Applegate, Robert~E. Bixby, Vasek Chv{\'a}tal, and William~J. Cook.
 \newblock The traveling salesman problem: A computational study.
-\newblock In \emph{The Traveling Salesman Problem}. Princeton University Press,
-  2011.
+\newblock In \emph{The Traveling Salesman Problem}. Princeton University Press, 2011.
 
-\bibitem[Bello et~al.(2016)Bello, Pham, Le, Norouzi, and
-  Bengio]{bello2017neural}
+\bibitem[Bello et~al.(2016)Bello, Pham, Le, Norouzi, and Bengio]{bello2017neural}
 Irwan Bello, Hieu Pham, Quoc~V. Le, Mohammad Norouzi, and Samy Bengio.
 \newblock Neural combinatorial optimization with reinforcement learning.
 \newblock \emph{arXiv preprint arXiv:1611.09940}, 2016.
@@ -30,14 +27,11 @@ Georges~A. Croes.
 
 \bibitem[Helsgaun(2017)]{helsgaun2017extension}
 Keld Helsgaun.
-\newblock An extension of the lin-kernighan-helsgaun tsp solver for constrained
-  traveling salesman and vehicle routing problems.
+\newblock An extension of the lin-kernighan-helsgaun tsp solver for constrained traveling salesman and vehicle routing problems.
 \newblock \emph{Roskilde: Roskilde University}, 12:\penalty0 966--980, 2017.
 
-\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
-  Chen]{hu2022lora}
-Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
-  Wang, Lu~Wang, and Weizhu Chen.
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen]{hu2022lora}
+Edward~J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu~Wang, and Weizhu Chen.
 \newblock {LoRA}: Low-rank adaptation of large language models.
 \newblock In \emph{International Conference on Learning Representations}, 2022.
 
@@ -61,44 +55,35 @@ Christos~H. Papadimitriou and Kenneth Steiglitz.
 \newblock \emph{Combinatorial Optimization: Algorithms and Complexity}.
 \newblock Courier Corporation, 1998.
 
-\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
-  Klimov]{schulman2017proximal}
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and Klimov]{schulman2017proximal}
 John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
 \newblock Proximal policy optimization algorithms.
 \newblock In \emph{arXiv preprint arXiv:1707.06347}, 2017.
 
 \bibitem[Sun and Yang(2023)]{sun2023difusco}
 Zhiqing Sun and Yiming Yang.
-\newblock Difusco: Graph-based diffusion solvers for combinatorial
-  optimization.
-\newblock \emph{Advances in Neural Information Processing Systems},
-  36:\penalty0 3706--3731, 2023.
+\newblock Difusco: Graph-based diffusion solvers for combinatorial optimization.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 3706--3731, 2023.
 
-\bibitem[Veli{\v{c}}kovi{\'c} et~al.(2017)Veli{\v{c}}kovi{\'c}, Cucurull,
-  Casanova, Romero, Li{\`o}, and Bengio]{velickovic2017graph}
-Petar Veli{\v{c}}kovi{\'c}, Guillem Cucurull, Arantxa Casanova, Adriana Romero,
-  Pietro Li{\`o}, and Yoshua Bengio.
+\bibitem[Veli{\v{c}}kovi{\'c} et~al.(2017)Veli{\v{c}}kovi{\'c}, Cucurull, Casanova, Romero, Li{\`o}, and Bengio]{velickovic2017graph}
+Petar Veli{\v{c}}kovi{\'c}, Guillem Cucurull, Arantxa Casanova, Adriana Romero, Pietro Li{\`o}, and Yoshua Bengio.
 \newblock Graph attention networks.
 \newblock \emph{arXiv preprint arXiv:1710.10903}, 2017.
 
 \bibitem[Williams(1992)]{williams1992simple}
 Ronald~J. Williams.
-\newblock Simple statistical gradient-following algorithms for connectionist
-  reinforcement learning.
+\newblock Simple statistical gradient-following algorithms for connectionist reinforcement learning.
 \newblock \emph{Machine Learning}, 8:\penalty0 229--256, 1992.
 
 \bibitem[Wouda et~al.(2024)Wouda, Lan, and Kool]{wouda2024pyvrp}
 Niels~A. Wouda, Leon Lan, and Wouter Kool.
 \newblock {PyVRP}: A high-performance {VRP} solver package.
-\newblock \emph{INFORMS Journal on Computing}, 36\penalty0 (4):\penalty0
-  943--955, 2024.
+\newblock \emph{INFORMS Journal on Computing}, 36\penalty0 (4):\penalty0 943--955, 2024.
 \newblock \doi{10.1287/ijoc.2023.0055}.
 
 \bibitem[Yoon et~al.(2024)Yoon, Song, Lee, and Lim]{yoon2024cado}
 D.~Yoon, H.~Song, K.~Lee, and W.~Lim.
-\newblock Cado: Cost-aware diffusion solvers for combinatorial optimization
-  through rl fine-tuning.
-\newblock In \emph{ICML 2024 Workshop on Structured Probabilistic Inference
-  {\&} Generative Modeling}, 2024.
+\newblock Cado: Cost-aware diffusion solvers for combinatorial optimization through rl fine-tuning.
+\newblock In \emph{ICML 2024 Workshop on Structured Probabilistic Inference {\&} Generative Modeling}, 2024.
 
 \end{thebibliography}

@@ -63,5 +63,3 @@
 \contentsline {section}{\numberline {A.4}Evaluation Protocol}{35}{section.A.4}%
 \contentsline {section}{\numberline {A.5}Configuration Files and Logs}{36}{section.A.5}%
 \contentsline {chapter}{참고문헌}{37}{section*.21}%
-\contentsline {chapter}{Abstract}{39}{appendix*.23}%
-\contentsline {chapter}{감사의 글}{40}{section*.24}%
